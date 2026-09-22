@@ -6,6 +6,7 @@ html {
   scroll-behavior: smooth;
   /* Keep anchored sections clear of the sticky navbar */
   scroll-padding-top: 6.5rem;
+  overflow-x: hidden;
 }
 
 /* Anchors / section targets sit below the sticky header */
@@ -16,6 +17,8 @@ html {
 body {
   background-color: #f2e6da;
   color: #243026;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 @layer utilities {
@@ -52,11 +55,11 @@ img {
 }
 
 .reveal-left {
-  transform: translateX(-28px);
+  transform: translateX(-16px);
 }
 
 .reveal-right {
-  transform: translateX(28px);
+  transform: translateX(16px);
 }
 
 .reveal-visible {

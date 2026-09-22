@@ -20,7 +20,7 @@ export default function ShopPage() {
   return (
     <div className="bg-biggs-cream">
       <JsonLd data={shopProductsSchema()} />
-      <section id="cookies">
+      <section id="cookies" className="overflow-hidden">
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-14 md:grid-cols-2 md:gap-12 md:py-20">
           <div>
             <h1 className="hero-enter font-display text-6xl font-bold leading-none text-biggs-green md:text-7xl lg:text-8xl">
@@ -33,7 +33,7 @@ export default function ShopPage() {
             </p>
           </div>
 
-          <div className="hero-image-enter relative flex justify-center overflow-visible md:justify-end">
+          <div className="hero-image-enter relative flex justify-center overflow-hidden md:justify-end">
             <ParallaxImage
               src="/images/shop-hero.webp"
               alt="Biggs cookies and branded box"
@@ -41,8 +41,8 @@ export default function ShopPage() {
               height={1050}
               priority
               intensity={36}
-              wrapperClassName="w-full overflow-visible"
-              className="h-auto w-[150%] max-w-none origin-center object-contain md:origin-right"
+              wrapperClassName="w-full overflow-hidden"
+              className="h-auto w-full max-w-full origin-center object-contain md:w-[150%] md:max-w-none md:origin-right"
             />
           </div>
         </div>
