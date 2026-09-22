@@ -21,11 +21,28 @@ const fraunces = Fraunces({
   variable: '--font-display',
 });
 
+function getSiteUrl() {
+  const explicit = process.env.NEXT_PUBLIC_SITE_URL;
+  if (explicit) return new URL(explicit);
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return new URL(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`);
+  }
+  if (process.env.VERCEL_URL) {
+    return new URL(`https://${process.env.VERCEL_URL}`);
+  }
+  return new URL('https://biggs-bakes.vercel.app');
+}
+
+const siteUrl = getSiteUrl();
+
 export const metadata: Metadata = {
-  metadataBase: new URL('https://biggsbakes.com'),
+  metadataBase: siteUrl,
   title: 'Biggs Bakes | NYC-Inspired Cookies, Baked in Britain',
   description:
     'Thick, gooey, NYC-inspired cookies baked fresh in the UK. Build your own box of 3 from six signature flavours.',
+  authors: [{ name: 'WebFuZsion', url: 'https://webfuzsion.co.uk' }],
+  creator: 'WebFuZsion',
+  publisher: 'Biggs Bakes',
   manifest: '/site.webmanifest',
   icons: {
     icon: [
@@ -39,14 +56,15 @@ export const metadata: Metadata = {
     title: 'Biggs Bakes | NYC-Inspired Cookies, Baked in Britain',
     description:
       'Thick, gooey, NYC-inspired cookies baked fresh in the UK. Build your own box of 3 from six signature flavours.',
-    url: 'https://biggsbakes.com',
+    url: siteUrl,
     siteName: 'Biggs Bakes',
     images: [
       {
         url: '/images/opengraph.jpg',
-        width: 1200,
-        height: 630,
+        width: 1424,
+        height: 752,
         alt: 'Biggs Bakes cookies',
+        type: 'image/jpeg',
       },
     ],
     locale: 'en_GB',

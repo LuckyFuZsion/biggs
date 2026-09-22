@@ -170,6 +170,11 @@ export const siteConfig = {
   domain: 'biggsbakes.com',
   email: 'hello@biggsbakes.com',
   tagline: 'NYC-inspired cookies. Baked in Britain.',
+  author: {
+    name: 'WebFuZsion',
+    url: 'https://webfuzsion.co.uk',
+    email: 'hello@webfuzsion.co.uk',
+  },
   social: {
     instagram: 'https://instagram.com/biggsbakes',
     tiktok: 'https://tiktok.com/@biggsbakes',

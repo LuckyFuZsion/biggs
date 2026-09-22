@@ -42,6 +42,17 @@ export function websiteSchema() {
     name: 'Biggs Bakes',
     description: siteConfig.tagline,
     publisher: { '@id': `${SITE_URL}/#organization` },
+    creator: {
+      '@type': 'Organization',
+      name: 'WebFuZsion',
+      url: 'https://webfuzsion.co.uk',
+      logo: absoluteUrl('/images/webfuzsion.png'),
+    },
+    author: {
+      '@type': 'Organization',
+      name: 'WebFuZsion',
+      url: 'https://webfuzsion.co.uk',
+    },
     inLanguage: 'en-GB',
   };
 }

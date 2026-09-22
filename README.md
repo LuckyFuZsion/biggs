@@ -1,5 +1,7 @@
 # Biggs Bakes - front-end mockup
 
+Built by [WebFuZsion](https://webfuzsion.co.uk).
+
 A hardcoded Next.js 14 (App Router) + TypeScript + Tailwind build of the Biggs Bakes site,
 based on the client's design spec (colours, fonts, page list) and the mockup screenshots.
 

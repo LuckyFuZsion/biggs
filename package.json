@@ -2,6 +2,7 @@
   "name": "biggs-bakes",
   "version": "0.1.0",
   "private": true,
+  "author": "WebFuZsion <hello@webfuzsion.co.uk> (https://webfuzsion.co.uk)",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

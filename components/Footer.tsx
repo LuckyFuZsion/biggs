@@ -178,7 +178,7 @@ export default function Footer() {
           <span>Website by</span>
           <Image
             src="/images/webfuzsion.png"
-            alt="Webfuzsion"
+            alt="WebFuZsion"
             width={120}
             height={28}
             className="h-5 w-auto"
