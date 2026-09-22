@@ -82,12 +82,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en-GB" className={`${montserrat.variable} ${fraunces.variable}`}>
-      <body className="font-sans font-semibold antialiased overflow-x-hidden">
+      <body className="font-sans font-semibold antialiased">
         <JsonLd data={siteGraphSchema()} />
         <CartProvider>
           <ScrollToTop />
           <Header />
-          <main>{children}</main>
+          <main className="pt-[5.5rem] md:pt-24">{children}</main>
           <Footer />
           <CartDrawer />
         </CartProvider>

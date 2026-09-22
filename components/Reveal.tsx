@@ -21,7 +21,9 @@ export default function Reveal({
   once = true,
 }: RevealProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
+  // Visible by default so content never stays blank if JS/CSS chunks fail
+  const [visible, setVisible] = useState(true);
+  const [awaiting, setAwaiting] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
@@ -30,29 +32,56 @@ export default function Reveal({
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduced) {
       setVisible(true);
+      setAwaiting(false);
       return;
     }
+
+    const rect = el.getBoundingClientRect();
+    const inView = rect.top < window.innerHeight * 0.92 && rect.bottom > 0;
+    if (inView) {
+      setVisible(true);
+      setAwaiting(false);
+      return;
+    }
+
+    // Below the fold: hide, then reveal on scroll
+    setVisible(false);
+    setAwaiting(true);
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setVisible(true);
+          setAwaiting(false);
           if (once) observer.unobserve(el);
         } else if (!once) {
           setVisible(false);
+          setAwaiting(true);
         }
       },
-      { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
+      { threshold: 0.08, rootMargin: '0px 0px -24px 0px' }
     );
 
     observer.observe(el);
-    return () => observer.disconnect();
+
+    // Safety: never leave content hidden
+    const fallback = window.setTimeout(() => {
+      setVisible(true);
+      setAwaiting(false);
+    }, 2500);
+
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(fallback);
+    };
   }, [once]);
 
   return (
     <div
       ref={ref}
-      className={`reveal reveal-${variant} ${visible ? 'reveal-visible' : ''} ${className}`}
+      className={`reveal reveal-${variant} ${awaiting && !visible ? 'reveal-await' : ''} ${
+        visible ? 'reveal-visible' : ''
+      } ${className}`}
       style={{ transitionDelay: `${delay}ms` }}
     >
       {children}

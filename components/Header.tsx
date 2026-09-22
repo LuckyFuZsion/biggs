@@ -36,7 +36,7 @@ export default function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-30 bg-biggs-green/95 text-biggs-cream transition-shadow duration-300 ${
+      className={`fixed inset-x-0 top-0 z-30 bg-biggs-green/95 text-biggs-cream transition-shadow duration-300 ${
         elevated ? 'header-elevated' : ''
       }`}
     >
