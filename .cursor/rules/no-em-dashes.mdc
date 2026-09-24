@@ -1,0 +1,27 @@
+---
+description: Never use em dashes or en dashes in copy or code comments
+alwaysApply: true
+---
+
+# No Em Dashes
+
+Never use em dashes (—) or en dashes (–) anywhere in this project: UI copy, markdown, comments, metadata, schema, or commits.
+
+## Use instead
+
+- Comma, colon, or period to break a clause
+- Hyphen with spaces (` - `) for an aside
+- Parentheses for a parenthetical
+
+```text
+❌ We collect what we need — your name and address.
+✅ We collect what we need - your name and address.
+✅ We collect what we need: your name and address.
+```
+
+```text
+❌ /* Hero entrance — keep visible if CSS fails */
+✅ /* Hero entrance - keep visible if CSS fails */
+```
+
+If you find existing em/en dashes, replace them before finishing the task.

@@ -29,7 +29,7 @@ img {
   background-color: transparent;
 }
 
-/* ——— Motion system ——— */
+/* --- Motion system --- */
 
 .reveal {
   transition:
@@ -37,7 +37,7 @@ img {
     transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Only hide when JS opts in — keeps content visible if scripts fail to load */
+/* Only hide when JS opts in - keeps content visible if scripts fail to load */
 .reveal.reveal-await {
   opacity: 0;
   will-change: opacity, transform;
@@ -68,7 +68,7 @@ img {
   transform: none;
 }
 
-/* Hero load entrance — opacity lives in keyframes so content stays visible if CSS animation fails */
+/* Hero load entrance - opacity lives in keyframes so content stays visible if CSS animation fails */
 .hero-enter {
   animation: hero-rise 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }

@@ -4,6 +4,21 @@ import Reveal from '@/components/Reveal';
 export default function AboutPage() {
   return (
     <div className="bg-biggs-cream">
+      <section className="relative overflow-hidden">
+        <div className="hero-image-enter relative mx-auto max-w-4xl px-6 pt-10 md:pt-14">
+          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-3xl">
+            <Image
+              src="/images/our-story-hero.png"
+              alt="Jack and Joe behind the Biggs Bakes counter"
+              fill
+              priority
+              sizes="(max-width: 896px) 100vw, 896px"
+              className="object-cover object-center"
+            />
+          </div>
+        </div>
+      </section>
+
       <div className="mx-auto max-w-4xl px-6 py-14">
         <p className="hero-enter nav-tracking text-xs font-semibold uppercase text-biggs-green/60">
           Our Story
@@ -12,21 +27,10 @@ export default function AboutPage() {
           Born in Britain. Inspired by New York.
         </h1>
 
-        <Reveal className="mt-8" variant="scale">
-          <Image
-            src="/images/about-our-story.webp"
-            alt="Jack and Joe at their first Biggs pop-up shop"
-            width={1280}
-            height={640}
-            className="h-auto w-full rounded-3xl object-cover"
-            priority
-          />
-        </Reveal>
-
         <div className="mt-10 space-y-6 text-biggs-green/80">
           <Reveal delay={0}>
             <p>
-              Biggs began with a simple obsession: the thick, indulgent cookies you’d queue for
+              Biggs began with a simple obsession: the thick, indulgent cookies you&apos;d queue for
               in Manhattan - the kind with a crisp edge, a gooey centre, and no shortage of
               chocolate. We wanted to bring that feeling home, made properly, with real British
               ingredients.
@@ -45,7 +49,7 @@ export default function AboutPage() {
             <p>
               Together they started Biggs from a single pop-up stall, selling out within hours.
               What started as a weekend obsession quickly became a full-time one - and now
-              we’re bringing the same six signature flavours straight to your door, baked fresh
+              we&apos;re bringing the same six signature flavours straight to your door, baked fresh
               to order.
             </p>
           </Reveal>

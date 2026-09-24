@@ -8,8 +8,8 @@ export default function StorySection() {
       <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 md:grid-cols-2">
         <Reveal variant="left">
           <ParallaxImage
-            src="/images/skyline.webp"
-            alt="New York City, the inspiration behind Biggs"
+            src="/images/our-story.webp"
+            alt="The story behind Biggs Bakes"
             width={1024}
             height={768}
             intensity={32}

@@ -85,7 +85,7 @@ export function boxProductSchema() {
   const box = products[0];
   return {
     '@type': 'Product',
-    '@id': `${SITE_URL}/shop/build-your-box#product`,
+    '@id': `${SITE_URL}/shop#build-your-box`,
     name: box.title,
     description: box.description,
     image: absoluteUrl(box.image),
@@ -97,7 +97,7 @@ export function boxProductSchema() {
     category: 'Cookie Boxes',
     offers: {
       '@type': 'Offer',
-      url: `${SITE_URL}/shop/build-your-box`,
+      url: `${SITE_URL}/shop#build-your-box`,
       priceCurrency: 'GBP',
       price: box.price.toFixed(2),
       availability: 'https://schema.org/InStock',

@@ -12,6 +12,7 @@ export const flavours: Flavour[] = [
     description: 'The classic done right - thick, gooey and loaded with chocolate.',
     price: 3.5,
     image: '/images/chocolate-chip.webp',
+    hoverImage: '/images/chocolate-chip-eaten.webp',
     allergens: ['Wheat (gluten)', 'Dairy', 'Egg', 'Soya'],
   },
   {
@@ -21,6 +22,7 @@ export const flavours: Flavour[] = [
     description: 'Rich red velvet cookie with white chocolate chunks and a cheesecake swirl.',
     price: 3.75,
     image: '/images/red-velvet-cheesecake.webp',
+    hoverImage: '/images/red-velvet-cheesecake-eaten.webp',
     allergens: ['Wheat (gluten)', 'Dairy', 'Egg', 'Soya'],
   },
   {
@@ -30,6 +32,7 @@ export const flavours: Flavour[] = [
     description: "Vanilla cookie loaded with crushed Oreo® and white chocolate chips.",
     price: 3.5,
     image: '/images/cookies-and-cream.webp',
+    hoverImage: '/images/cookies-and-cream-eaten.webp',
     allergens: ['Wheat (gluten)', 'Dairy', 'Egg', 'Soya'],
   },
   {
@@ -39,6 +42,7 @@ export const flavours: Flavour[] = [
     description: 'Biscoff cookie pieces and smooth white chocolate chunks.',
     price: 3.75,
     image: '/images/biscoff-and-white-chocolate.webp',
+    hoverImage: '/images/biscoff-and-white-chocolate-eaten.webp',
     allergens: ['Wheat (gluten)', 'Dairy', 'Soya'],
   },
   {
@@ -48,6 +52,7 @@ export const flavours: Flavour[] = [
     description: 'Triple chocolate cookie with toasted marshmallow and milk chocolate chunks.',
     price: 3.75,
     image: '/images/triple-chocolate-smores.webp',
+    hoverImage: '/images/triple-chocolate-smores-eaten.webp',
     allergens: ['Wheat (gluten)', 'Dairy', 'Egg', 'Soya'],
   },
   {
@@ -57,6 +62,7 @@ export const flavours: Flavour[] = [
     description: 'The best of both worlds - fudgy brownie and cookie in one epic bake.',
     price: 3.75,
     image: '/images/brookie.webp',
+    hoverImage: '/images/brookie-eaten.webp',
     allergens: ['Wheat (gluten)', 'Dairy', 'Egg', 'Soya', 'Nuts'],
   },
 ];
@@ -68,7 +74,7 @@ export const products: Product[] = [
     title: 'Build Your Box of 3',
     description:
       'Choose any 3 of our six signature flavours and build your perfect box. Thick, gooey, NYC-inspired cookies, baked fresh in Britain.',
-    price: 10.5,
+    price: 19.95,
     image: '/images/cookies-box.webp',
     type: 'box-of-3',
   },

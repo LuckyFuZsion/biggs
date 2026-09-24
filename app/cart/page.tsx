@@ -24,7 +24,7 @@ export default function CartPage() {
             Your cart is empty
           </h1>
           <Link
-            href="/shop/build-your-box"
+            href="/shop#build-your-box"
             className="btn-pop hero-enter hero-enter-delay-1 mt-6 inline-block rounded-full bg-biggs-yellow px-8 py-3 font-semibold text-biggs-green"
           >
             Build Your Box

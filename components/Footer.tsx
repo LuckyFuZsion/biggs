@@ -8,15 +8,14 @@ const LINK_COL_ONE = [
   { href: '/shop#cookies', label: 'Our Cookies' },
   { href: '/faq#ordering-delivery', label: 'Delivery' },
   { href: '/allergens', label: 'Allergens' },
-  { href: '#', label: 'Terms & Conditions' },
+  { href: '/terms', label: 'Terms & Conditions' },
 ];
 
 const LINK_COL_TWO = [
   { href: '/about', label: 'Our Story' },
   { href: '/faq', label: 'FAQ' },
   { href: '/faq#contact-us', label: 'Contact' },
-  { href: '/allergens', label: 'Allergen Statement' },
-  { href: '#', label: 'Privacy Policy' },
+  { href: '/privacy', label: 'Privacy Policy' },
 ];
 
 const PAYMENT_METHODS = [

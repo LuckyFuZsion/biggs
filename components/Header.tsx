@@ -9,8 +9,6 @@ import { useCart } from './CartProvider';
 const NAV_LINKS = [
   { href: '/shop', label: 'Shop', match: '/shop' },
   { href: '/about', label: 'Our Story', match: '/about' },
-  { href: '/shop#cookies', label: 'Our Cookies', match: null },
-  { href: '/faq#ordering-delivery', label: 'Delivery', match: null },
   { href: '/faq', label: 'FAQ', match: '/faq' },
 ];
 

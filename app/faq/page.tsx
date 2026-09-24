@@ -35,12 +35,6 @@ export default function FaqPage() {
             className="rounded-2xl border border-biggs-green/15 bg-white/50 p-6"
           >
             <h2 className="font-display text-2xl font-bold text-biggs-green">Get In Touch</h2>
-            <p className="mt-1 text-sm text-biggs-green/70">
-              Or email us directly at{' '}
-              <a href={`mailto:${siteConfig.email}`} className="underline">
-                {siteConfig.email}
-              </a>
-            </p>
 
             {sent ? (
               <p className="mt-6 font-semibold text-biggs-green">

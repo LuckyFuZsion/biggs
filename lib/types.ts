@@ -5,6 +5,8 @@ export interface Flavour {
   description: string;
   price: number;
   image: string;
+  /** Optional second photo shown on hover (Shop page cards). Falls back to `image` when unset. */
+  hoverImage?: string;
   allergens: string[];
 }
 
