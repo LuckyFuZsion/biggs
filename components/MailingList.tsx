@@ -34,7 +34,7 @@ export default function MailingList() {
               Be the first to get Biggs cookies.
             </h2>
             <p className="mt-3 max-w-sm text-sm text-biggs-cream/70 md:text-base">
-              Sign up to get early access to new drops/flavours.
+              Sign up to get early access to the next drop of new flavours.
             </p>
 
             {submitted ? (

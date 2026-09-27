@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import { useCart } from './CartProvider';
 
 const NAV_LINKS = [
+  { href: '/', label: 'Home', match: '/' },
   { href: '/shop', label: 'Shop', match: '/shop' },
   { href: '/about', label: 'Our Story', match: '/about' },
   { href: '/faq', label: 'FAQ', match: '/faq' },
@@ -52,7 +53,11 @@ export default function Header() {
 
         <nav className="hidden items-center gap-8 md:flex">
           {NAV_LINKS.map((link) => {
-            const active = link.match ? pathname.startsWith(link.match) : false;
+            const active = link.match
+              ? link.match === '/'
+                ? pathname === '/'
+                : pathname.startsWith(link.match)
+              : false;
             return (
               <Link
                 key={link.label}

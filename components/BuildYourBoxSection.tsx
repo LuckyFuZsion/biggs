@@ -134,7 +134,7 @@ export default function BuildYourBoxSection() {
             className="relative flex min-h-[240px] items-center justify-center px-4 py-8 md:min-h-full md:px-6 md:py-10"
             style={{
               background:
-                'linear-gradient(90deg, #243026 0%, #3a4a3c 35%, #e8d9c8 100%)',
+                'linear-gradient(90deg, #243026 0%, #3a4a3c 100%)',
             }}
           >
             <Image
