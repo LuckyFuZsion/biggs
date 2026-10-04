@@ -1,7 +1,8 @@
-import { flavours } from '@/lib/data';
+import { getFlavours } from '@/lib/flavours';
 import Reveal from '@/components/Reveal';
 
-export default function AllergensPage() {
+export default async function AllergensPage() {
+  const flavours = (await getFlavours()).filter((f) => f.inShop !== false);
   return (
     <div className="bg-biggs-cream">
       <div className="mx-auto max-w-4xl px-6 py-14">
@@ -37,7 +38,9 @@ export default function AllergensPage() {
               <div className="card-lift flex flex-col justify-between gap-2 rounded-xl bg-white/40 p-4 sm:flex-row sm:items-center">
                 <p className="font-semibold text-biggs-green">{flavour.name}</p>
                 <p className="text-sm text-biggs-green/70">
-                  Contains: {flavour.allergens.join(', ')}
+                  {flavour.allergens.length
+                    ? `Contains: ${flavour.allergens.join(', ')}`
+                    : 'Please ask us for full allergen details.'}
                 </p>
               </div>
             </Reveal>

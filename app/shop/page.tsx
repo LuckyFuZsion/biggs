@@ -1,4 +1,4 @@
-import { flavours } from '@/lib/data';
+import { getFlavours } from '@/lib/flavours';
 import ShopProductCard from '@/components/ShopProductCard';
 import BuildYourBoxSection from '@/components/BuildYourBoxSection';
 import Reveal from '@/components/Reveal';
@@ -6,7 +6,8 @@ import ParallaxImage from '@/components/ParallaxImage';
 import JsonLd from '@/components/JsonLd';
 import { shopProductsSchema } from '@/lib/schema';
 
-export default function ShopPage() {
+export default async function ShopPage() {
+  const flavours = await getFlavours();
   return (
     <div className="bg-biggs-cream">
       <JsonLd data={shopProductsSchema()} />
@@ -46,7 +47,7 @@ export default function ShopPage() {
         </Reveal>
 
         <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-          {flavours.map((flavour, i) => (
+          {flavours.filter((f) => f.inShop !== false).map((flavour, i) => (
             <Reveal key={flavour.id} delay={i * 70} variant="up">
               <ShopProductCard flavour={flavour} />
             </Reveal>
@@ -54,7 +55,7 @@ export default function ShopPage() {
         </div>
       </div>
 
-      <BuildYourBoxSection />
+      <BuildYourBoxSection flavours={flavours} />
     </div>
   );
 }

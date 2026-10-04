@@ -2,18 +2,31 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
-import { flavours, products } from '@/lib/data';
+import { useEffect, useMemo, useState } from 'react';
+import { products } from '@/lib/data';
+import { Flavour } from '@/lib/types';
 import { useCart } from '@/components/CartProvider';
+import { fetchSoldOutHandles, isShopifyConfigured } from '@/lib/shopify';
 
 const DROPDOWN_LABELS = ['Cookie 1', 'Cookie 2', 'Cookie 3'];
 
-export default function BuildYourBoxSection() {
+export default function BuildYourBoxSection({ flavours }: { flavours: Flavour[] }) {
   const product = products[0];
   const { addItem, openCart } = useCart();
 
   const [selections, setSelections] = useState<string[]>(['', '', '']);
   const [justAdded, setJustAdded] = useState(false);
+  const [soldOut, setSoldOut] = useState<Record<string, boolean> | null>(null);
+
+  // Ask Shopify which flavours are out of stock. If this fails we simply show everything.
+  useEffect(() => {
+    if (!isShopifyConfigured()) return;
+    fetchSoldOutHandles().then(setSoldOut).catch(() => {});
+  }, []);
+
+  const isSoldOut = (f: Flavour) =>
+    soldOut && f.shopifyHandle ? Boolean(soldOut[f.shopifyHandle]) : Boolean(f.soldOut);
+  const boxFlavours = flavours.filter((f) => f.inBox !== false);
 
   const allSelected = useMemo(() => selections.every((s) => s !== ''), [selections]);
 
@@ -92,9 +105,14 @@ export default function BuildYourBoxSection() {
                       }`}
                     >
                       <option value="">Select a flavour…</option>
-                      {flavours.map((flavour) => (
-                        <option key={flavour.id} value={flavour.id}>
+                      {boxFlavours.map((flavour) => (
+                        <option
+                          key={flavour.id}
+                          value={flavour.id}
+                          disabled={isSoldOut(flavour)}
+                        >
                           {flavour.name}
+                          {isSoldOut(flavour) ? ' (sold out)' : ''}
                         </option>
                       ))}
                     </select>

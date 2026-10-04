@@ -7,6 +7,14 @@ export interface Flavour {
   image: string;
   /** Optional second photo shown on hover (Shop page cards). Falls back to `image` when unset. */
   hoverImage?: string;
+  /** Set from Shopify stock when known. */
+  soldOut?: boolean;
+  /** Shopify product handle, used to look up live stock. */
+  shopifyHandle?: string;
+  /** Show on the Shop page / homepage (Shopify tag `shop`). Defaults to true. */
+  inShop?: boolean;
+  /** Selectable in the Build Your Box dropdowns (Shopify tag `box`). Defaults to true. */
+  inBox?: boolean;
   allergens: string[];
 }
 

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useCart } from '@/components/CartProvider';
+import { createCheckout, isShopifyConfigured } from '@/lib/shopify';
 import Reveal from '@/components/Reveal';
 
 const PAYMENT_ICONS = ['Visa', 'Mastercard', 'PayPal', 'Apple Pay'];
@@ -15,6 +16,25 @@ function formatPrice(value: number) {
 export default function CartPage() {
   const { items, removeItem, updateQuantity, subtotal } = useCart();
   const [agreed, setAgreed] = useState(false);
+  const [checkingOut, setCheckingOut] = useState(false);
+  const [error, setError] = useState('');
+
+  async function handleCheckout() {
+    if (!agreed || checkingOut) return;
+    setError('');
+    if (!isShopifyConfigured()) {
+      setError('Checkout is not connected yet.');
+      return;
+    }
+    setCheckingOut(true);
+    try {
+      const url = await createCheckout(items, { allergenAccepted: agreed });
+      window.location.href = url;
+    } catch {
+      setError('Sorry, we could not start checkout. Please try again in a moment.');
+      setCheckingOut(false);
+    }
+  }
 
   if (items.length === 0) {
     return (
@@ -128,11 +148,13 @@ export default function CartPage() {
 
         <Reveal className="mt-6" delay={200}>
           <button
-            disabled={!agreed}
+            onClick={handleCheckout}
+            disabled={!agreed || checkingOut}
             className="btn-pop w-full rounded-full bg-biggs-yellow px-8 py-4 font-semibold text-biggs-green disabled:cursor-not-allowed disabled:bg-biggs-green/15 disabled:text-biggs-green/40"
           >
-            {agreed ? 'Checkout' : 'Tick the box above to continue'}
+            {checkingOut ? 'Taking you to checkout...' : agreed ? 'Checkout' : 'Tick the box above to continue'}
           </button>
+          {error && <p className="mt-3 text-center text-sm text-red-700">{error}</p>}
 
           <div className="mt-6 flex justify-center gap-4 text-xs font-semibold uppercase tracking-wide text-biggs-green/50">
             {PAYMENT_ICONS.map((icon) => (
