@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { siteConfig } from '@/lib/data';
 import Reveal from './Reveal';
+import { siteImage } from '@/lib/site-images';
 
 const LINK_COL_ONE = [
   { href: '/shop', label: 'Shop' },
@@ -55,7 +56,8 @@ function EmailIcon({ className }: { className?: string }) {
   );
 }
 
-export default function Footer() {
+export default async function Footer() {
+  const logoSrc = await siteImage('logo', '/images/logo.webp');
   return (
     <footer className="bg-biggs-green text-biggs-yellow">
       <Reveal className="mx-auto max-w-6xl px-6 py-16 md:py-20">
@@ -64,7 +66,7 @@ export default function Footer() {
           <div className="max-w-[220px] shrink-0">
             <Link href="/" className="inline-flex items-center" aria-label="Biggs home">
               <Image
-                src="/images/logo.webp"
+                src={logoSrc}
                 alt="Biggs"
                 width={240}
                 height={72}
@@ -72,9 +74,11 @@ export default function Footer() {
               />
             </Link>
             <p className="nav-tracking mt-5 text-[11px] font-medium uppercase leading-relaxed text-biggs-yellow">
-              NYC-inspired cookies.
+              Thick.
               <br />
-              Made in the UK.
+              Chunky.
+              <br />
+              Unapologetic.
             </p>
           </div>
 

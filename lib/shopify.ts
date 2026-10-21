@@ -113,7 +113,7 @@ export async function fetchFlavourProducts(): Promise<ShopifyFlavourProduct[]> {
       }
     `,
     undefined,
-    { revalidate: 60 }
+    { revalidate: 600 }
   );
   return data.products.nodes;
 }
