@@ -1,14 +1,16 @@
 import Image from 'next/image';
 import Reveal from '@/components/Reveal';
+import { siteImage } from '@/lib/site-images';
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const aboutSrc = await siteImage('about', '/images/our-story-hero.png');
   return (
     <div className="bg-biggs-cream">
       <section className="relative overflow-hidden">
         <div className="hero-image-enter relative mx-auto max-w-4xl px-6 pt-10 md:pt-14">
           <div className="relative aspect-[16/10] w-full overflow-hidden rounded-3xl">
             <Image
-              src="/images/our-story-hero.png"
+              src={aboutSrc}
               alt="Jack and Joe behind the Biggs Bakes counter"
               fill
               priority

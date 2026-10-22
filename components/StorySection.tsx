@@ -1,14 +1,16 @@
 import Link from 'next/link';
 import Reveal from './Reveal';
 import ParallaxImage from './ParallaxImage';
+import { siteImage } from '@/lib/site-images';
 
-export default function StorySection() {
+export default async function StorySection() {
+  const storySrc = await siteImage('story', '/images/our-story.webp');
   return (
     <section className="bg-biggs-cream py-16 md:py-20">
       <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 md:grid-cols-2">
         <Reveal variant="left">
           <ParallaxImage
-            src="/images/our-story.webp"
+            src={storySrc}
             alt="The story behind Biggs Bakes"
             width={1024}
             height={768}

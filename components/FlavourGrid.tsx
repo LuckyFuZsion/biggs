@@ -9,10 +9,10 @@ export default async function FlavourGrid() {
       <div className="mx-auto max-w-6xl px-6">
         <Reveal>
           <p className="nav-tracking mb-2 text-center text-xs font-semibold uppercase text-biggs-yellow">
-            Our Signature Cookies
+            The Original Six
           </p>
           <h2 className="text-center font-display text-3xl font-bold text-biggs-cream md:text-4xl">
-            Iconic flavours. Unforgettable bites.
+            Exceptional flavours. Unforgettable bites.
           </h2>
         </Reveal>
 

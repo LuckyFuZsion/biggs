@@ -8,6 +8,8 @@ import { CartProvider } from '@/components/CartProvider';
 import ScrollToTop from '@/components/ScrollToTop';
 import JsonLd from '@/components/JsonLd';
 import { siteGraphSchema } from '@/lib/schema';
+import { getSiteImages } from '@/lib/site-images';
+import { SiteImagesProvider } from '@/components/SiteImagesProvider';
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -79,11 +81,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const siteImages = await getSiteImages();
   return (
     <html lang="en-GB" className={`${montserrat.variable} ${fraunces.variable}`}>
       <body className="font-sans font-semibold antialiased">
         <JsonLd data={siteGraphSchema()} />
+        <SiteImagesProvider images={siteImages}>
         <CartProvider>
           <ScrollToTop />
           <Header />
@@ -91,6 +95,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Footer />
           <CartDrawer />
         </CartProvider>
+        </SiteImagesProvider>
       </body>
     </html>
   );

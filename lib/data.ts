@@ -73,7 +73,7 @@ export const products: Product[] = [
     slug: 'build-your-box',
     title: 'Build Your Box of 3',
     description:
-      'Choose any 3 of our six signature flavours and build your perfect box. Thick, gooey, NYC-inspired cookies, baked fresh in Britain.',
+      'Choose any 3 of our six signature flavours and build your perfect box.',
     price: 19.95,
     image: '/images/cookies-box.webp',
     type: 'box-of-3',

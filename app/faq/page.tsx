@@ -32,12 +32,12 @@ export default function FaqPage() {
         <Reveal className="mt-14" delay={120} variant="up">
           <div
             id="contact-form"
-            className="rounded-2xl border border-biggs-green/15 bg-white/50 p-6"
+            className="rounded-2xl bg-biggs-green p-6 md:p-8"
           >
-            <h2 className="font-display text-2xl font-bold text-biggs-green">Get In Touch</h2>
+            <h2 className="font-display text-2xl font-bold text-biggs-cream">Get In Touch</h2>
 
             {sent ? (
-              <p className="mt-6 font-semibold text-biggs-green">
+              <p className="mt-6 font-semibold text-biggs-yellow">
                 Thanks for reaching out - we’ll be in touch soon!
               </p>
             ) : (
@@ -48,7 +48,7 @@ export default function FaqPage() {
                   placeholder="Name"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full rounded-xl border border-biggs-green/20 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-biggs-yellow"
+                  className="w-full rounded-xl border border-transparent bg-white px-4 py-3 text-biggs-green placeholder:text-biggs-green/50 focus:outline-none focus:ring-2 focus:ring-biggs-yellow"
                 />
                 <input
                   type="email"
@@ -56,7 +56,7 @@ export default function FaqPage() {
                   placeholder="Email"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="w-full rounded-xl border border-biggs-green/20 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-biggs-yellow"
+                  className="w-full rounded-xl border border-transparent bg-white px-4 py-3 text-biggs-green placeholder:text-biggs-green/50 focus:outline-none focus:ring-2 focus:ring-biggs-yellow"
                 />
                 <textarea
                   required
@@ -64,7 +64,7 @@ export default function FaqPage() {
                   placeholder="How can we help?"
                   value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
-                  className="w-full rounded-xl border border-biggs-green/20 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-biggs-yellow"
+                  className="w-full rounded-xl border border-transparent bg-white px-4 py-3 text-biggs-green placeholder:text-biggs-green/50 focus:outline-none focus:ring-2 focus:ring-biggs-yellow"
                 />
                 <button
                   type="submit"

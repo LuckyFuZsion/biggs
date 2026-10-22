@@ -5,9 +5,11 @@ import Reveal from '@/components/Reveal';
 import ParallaxImage from '@/components/ParallaxImage';
 import JsonLd from '@/components/JsonLd';
 import { shopProductsSchema } from '@/lib/schema';
+import { siteImage } from '@/lib/site-images';
 
 export default async function ShopPage() {
   const flavours = await getFlavours();
+  const shopHeroSrc = await siteImage('shopHero', '/images/shop-hero.webp');
   return (
     <div className="bg-biggs-cream">
       <JsonLd data={shopProductsSchema()} />
@@ -15,18 +17,18 @@ export default async function ShopPage() {
         <div className="mx-auto grid max-w-6xl items-center gap-8 px-6 py-8 md:grid-cols-2 md:gap-10 md:py-10">
           <div>
             <h1 className="hero-enter font-display text-5xl font-bold leading-none text-biggs-green md:text-6xl lg:text-7xl">
-              Shop
+              Biggs Cookies.
+              <br />
+              Bigger Bites.
             </h1>
             <p className="hero-enter hero-enter-delay-1 mt-5 max-w-xs text-base font-medium leading-relaxed text-biggs-green md:text-lg">
-              NYC-inspired cookies.
-              <br />
-              Baked fresh in Britain.
+              Your cookie preferences are about to be updated...
             </p>
           </div>
 
           <div className="hero-image-enter relative flex justify-center overflow-hidden md:justify-end">
             <ParallaxImage
-              src="/images/shop-hero.webp"
+              src={shopHeroSrc}
               alt="Biggs cookies and branded box"
               width={1350}
               height={1050}

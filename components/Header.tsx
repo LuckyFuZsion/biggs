@@ -5,10 +5,11 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useCart } from './CartProvider';
+import { useSiteImage } from './SiteImagesProvider';
 
 const NAV_LINKS = [
   { href: '/', label: 'Home', match: '/' },
-  { href: '/shop', label: 'Shop', match: '/shop' },
+  { href: '/shop', label: 'Our Cookies', match: '/shop' },
   { href: '/about', label: 'Our Story', match: '/about' },
   { href: '/faq', label: 'FAQ', match: '/faq' },
 ];
@@ -19,6 +20,7 @@ export default function Header() {
   const [elevated, setElevated] = useState(false);
   const [badgeKey, setBadgeKey] = useState(0);
   const pathname = usePathname();
+  const logoSrc = useSiteImage('logo', '/images/logo.webp');
 
   useEffect(() => {
     function onScroll() {
@@ -42,7 +44,7 @@ export default function Header() {
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
         <Link href="/" className="inline-flex items-center" aria-label="Biggs home">
           <Image
-            src="/images/logo.webp"
+            src={logoSrc}
             alt="Biggs"
             width={220}
             height={66}
