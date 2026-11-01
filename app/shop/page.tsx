@@ -41,7 +41,9 @@ export default async function ShopPage() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-6xl px-6 pb-4 pt-8 md:pb-6">
+      <BuildYourBoxSection flavours={flavours} />
+
+      <div className="mx-auto max-w-6xl px-6 pb-16 pt-4 md:pb-20">
         <Reveal>
           <h2 className="font-display text-3xl font-bold text-biggs-green md:text-4xl">
             Our Flavours
@@ -56,8 +58,6 @@ export default async function ShopPage() {
           ))}
         </div>
       </div>
-
-      <BuildYourBoxSection flavours={flavours} />
     </div>
   );
 }
