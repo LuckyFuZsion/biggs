@@ -122,7 +122,7 @@ export default function MailingList() {
       <Reveal className="mx-auto max-w-5xl px-6">
         <div className="rounded-[2rem] bg-biggs-green">
           {/* Logo across the top */}
-          <div className="flex justify-center border-b border-biggs-cream/10 px-8 pb-3 pt-6">
+          <div className="flex justify-center px-8 pb-3 pt-6">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={logoSrc} alt="Biggs" className="mb-2 h-14 w-auto md:h-16" />
           </div>
