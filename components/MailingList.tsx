@@ -119,7 +119,7 @@ export default function MailingList() {
 
   return (
     <section className="bg-biggs-cream pb-16 md:pb-20">
-      <Reveal className="mx-auto max-w-5xl px-6">
+      <Reveal className="mx-auto max-w-[67rem] px-6">
         <div className="rounded-[2rem] bg-biggs-green">
           {/* Logo across the top */}
           <div className="flex justify-center px-8 pb-3 pt-6">
@@ -195,7 +195,7 @@ export default function MailingList() {
                     {error}
                   </p>
                   {/* Two lines as requested; on phones it is sized to fit and borrows a little side padding */}
-                  <p className="-mx-[1.6rem] whitespace-pre-line text-[length:min(0.75rem,calc((100cqw+3.2rem)/35.5))] font-medium leading-relaxed text-biggs-cream/50 md:mx-0 md:text-xs">
+                  <p className="-mx-[1.6rem] whitespace-pre-line text-[length:min(0.75rem,calc((100cqw+3.2rem)/35.5))] font-medium leading-relaxed text-biggs-cream/50">
                     {CONSENT}
                   </p>
                 </>
