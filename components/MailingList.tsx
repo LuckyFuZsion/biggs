@@ -14,7 +14,7 @@ import { useSiteImage } from './SiteImagesProvider';
 const SUBSCRIBE_URL = process.env.NEXT_PUBLIC_SUBSCRIBE_URL;
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 const CONSENT =
-  'By signing up you agree to receive emails from Biggs cookies about\nnew drops & flavours. Unsubscribe at any time.';
+  'By signing up you agree to receive emails from Biggs Bakes about\nnew drops & flavours. Unsubscribe at any time.';
 const COMPANY_LINE =
   'Biggs Productions Limited, registered in England and Wales, company no. 16768990, 86-90 Paul Street, London EC2A 4NE';
 
