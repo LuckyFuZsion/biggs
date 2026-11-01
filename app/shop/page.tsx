@@ -9,7 +9,7 @@ import { siteImage } from '@/lib/site-images';
 
 export default async function ShopPage() {
   const flavours = await getFlavours();
-  const shopHeroSrc = await siteImage('shopHero', '/images/shop-hero.webp');
+  const shopHeroSrc = await siteImage('shopHero', '/images/shop-hero-box.webp');
   return (
     <div className="bg-biggs-cream">
       <JsonLd data={shopProductsSchema()} />
@@ -29,13 +29,13 @@ export default async function ShopPage() {
           <div className="hero-image-enter relative flex justify-center overflow-hidden md:justify-end">
             <ParallaxImage
               src={shopHeroSrc}
-              alt="Biggs cookies and branded box"
+              alt="A Biggs box of cookies"
               width={1350}
               height={1050}
               priority
               intensity={36}
-              wrapperClassName="w-full max-h-[42vh] overflow-hidden md:max-h-[320px]"
-              className="h-auto w-full max-w-full origin-center object-contain md:w-[150%] md:max-w-none md:origin-right"
+              wrapperClassName="w-full overflow-hidden rounded-3xl"
+              className="h-auto w-full rounded-3xl object-cover"
             />
           </div>
         </div>
