@@ -2,59 +2,101 @@ import Image from 'next/image';
 import Reveal from '@/components/Reveal';
 import { siteImage } from '@/lib/site-images';
 
+function Founder({
+  name,
+  role,
+  src,
+  alt,
+  flip,
+  children,
+}: {
+  name: string;
+  role: string;
+  src: string;
+  alt: string;
+  flip?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="grid items-center gap-8 md:grid-cols-2 md:gap-12">
+      <Reveal variant={flip ? 'right' : 'left'} className={flip ? 'md:order-2' : ''}>
+        <div className="relative mx-auto aspect-[3/4] w-full max-w-sm overflow-hidden rounded-3xl">
+          <Image
+            src={src}
+            alt={alt}
+            fill
+            sizes="(max-width: 768px) 90vw, 384px"
+            className="object-cover object-center"
+          />
+        </div>
+      </Reveal>
+      <Reveal variant={flip ? 'left' : 'right'} delay={100} className={flip ? 'md:order-1' : ''}>
+        <div className="space-y-4 text-biggs-green/80">
+          <div>
+            <h2 className="font-bold text-biggs-green">{name} - Founder</h2>
+            <p className="font-bold text-biggs-green">{role}</p>
+          </div>
+          {children}
+        </div>
+      </Reveal>
+    </div>
+  );
+}
+
 export default async function AboutPage() {
-  const aboutSrc = await siteImage('about', '/images/our-story-hero.png');
+  const jackSrc = await siteImage('about', '/images/our-story-jack.webp');
   return (
     <div className="bg-biggs-cream">
-      <section className="relative overflow-hidden">
-        <div className="hero-image-enter relative mx-auto max-w-4xl px-6 pt-10 md:pt-14">
-          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-3xl">
-            <Image
-              src={aboutSrc}
-              alt="Jack and Joe behind the Biggs Bakes counter"
-              fill
-              priority
-              sizes="(max-width: 896px) 100vw, 896px"
-              className="object-cover object-center"
-            />
-          </div>
-        </div>
-      </section>
-
-      <div className="mx-auto max-w-4xl px-6 py-14">
-        <p className="hero-enter nav-tracking text-xs font-semibold uppercase text-biggs-green/60">
+      <div className="mx-auto max-w-4xl px-6 py-12 md:py-16">
+        <h1 className="hero-enter text-center font-display text-4xl font-bold text-biggs-green md:text-5xl">
           Our Story
-        </p>
-        <h1 className="hero-enter hero-enter-delay-1 mt-2 font-display text-4xl font-bold text-biggs-green md:text-5xl">
-          Born in Britain. Inspired by New York.
         </h1>
+        <p className="hero-enter hero-enter-delay-1 mx-auto mt-5 max-w-2xl text-center font-semibold text-biggs-green">
+          Behind every Biggs cookie are two overly-obsessed cookie lovers. Bringing thick, gooey
+          and ridiculously stuffed cookies to you. Six flavours at a time.
+        </p>
 
-        <div className="mt-10 space-y-6 text-biggs-green/80">
-          <Reveal delay={0}>
+        <div className="mt-12 space-y-14 md:mt-16 md:space-y-20">
+          <Founder
+            name="Jack"
+            role="Chief Cookie Connoisseur"
+            src={jackSrc}
+            alt="Jack and Joe behind the Biggs Bakes counter"
+          >
             <p>
-              Biggs began with a simple obsession: the thick, indulgent cookies you&apos;d queue for
-              in Manhattan - the kind with a crisp edge, a gooey centre, and no shortage of
-              chocolate. We wanted to bring that feeling home, made properly, with real British
-              ingredients.
+              The brains behind the bake. Jack has spent two years perfecting his own cookie
+              recipe, determined to create the ultimate thick cookie with generous fillings that
+              actually stay where they’re supposed to.
             </p>
-          </Reveal>
-          <Reveal delay={100}>
             <p>
-              <span className="font-semibold text-biggs-green">Jack</span> spent years honing his
-              baking craft, chasing the perfect thick-cookie texture through countless test
-              batches. <span className="font-semibold text-biggs-green">Joe</span> brought the
-              other essential skill - a lifelong talent for eating them, and an unrelenting
-              standard for what &quot;good&quot; actually tastes like.
+              After plenty of testing, and the occasional cookie collapse, he cracked the recipe
+              for thick, gooey perfection.
             </p>
-          </Reveal>
-          <Reveal delay={200}>
             <p>
-              Together they started Biggs from a single pop-up stall, selling out within hours.
-              What started as a weekend obsession quickly became a full-time one - and now
-              we&apos;re bringing the same six signature flavours straight to your door, baked fresh
-              to order.
+              Family, friends &amp; neighbours soon became just as obsessed with the cookies as
+              Jack &amp; Joe, so they wanted to finally share them with everyone else - otherwise
+              it would just be selfish.
             </p>
-          </Reveal>
+          </Founder>
+
+          <Founder
+            name="Joe"
+            role="Head Cookie Monster"
+            src="/images/our-story-joe.webp"
+            alt="Jack and Joe in the Biggs kitchen holding a stack of cookies and a Biggs box"
+            flip
+          >
+            <p>
+              Joe’s been on a hunt for the perfect cookie that doesn’t disappear in a single bite,
+              fall off like dusty shortbread…and is ACTUALLY stuffed.
+            </p>
+            <p>
+              After discovering cookies in New York that forced him to have a lie-down in Central
+              Park, he still hadn’t found that perfect bite. He couldn’t understand why the UK was
+              missing out on proper chunky treats.
+            </p>
+            <p>So together, with Jack, they created Biggs at home, saving them both another flight.</p>
+          </Founder>
         </div>
       </div>
     </div>

@@ -88,27 +88,32 @@ export const faqCategories: FaqCategory[] = [
       {
         question: 'When will my order arrive?',
         answer:
-          'Orders are baked fresh to order and dispatched within our published dispatch window. You’ll get a shipping confirmation with tracking as soon as it’s on its way.',
+          'We aim for your cookies to arrive at your door within 5–10 working days of placing your order. Every box is baked fresh to order, so there can be a short wait before your cookies are dispatched. Once baked, your order is sent via a tracked 24-hour delivery service.',
       },
       {
-        question: 'Why is there a wait for dispatch?',
+        question: 'Where do you deliver and how much does delivery cost?',
         answer:
-          'Every box is baked fresh rather than pulled from a warehouse shelf, so we batch bakes and dispatch on set days each week to guarantee freshness.',
-      },
-      {
-        question: 'Can I change my delivery address?',
-        answer:
-          'Get in touch as soon as possible after ordering and we’ll do our best to update it before your order is dispatched.',
+          'We deliver across the UK via a tracked 24-hour delivery service. As soon as your order is on its way, you’ll receive a delivery confirmation via text and/or email with your tracking details, so you can keep an eye on your cookie delivery.',
       },
       {
         question: 'Can I cancel my order?',
         answer:
-          'Cancellations are possible before your order enters production. Once baking has started we’re unable to cancel, as each box is made fresh for you.',
+          'Cancellations are possible before your order has started baking. As we’re a small home bakery and each box is baked fresh to order, once baking has started we’re unfortunately unable to cancel or refund the order. If you need to cancel your order, please get in touch with us as soon as possible after placing it.',
       },
       {
-        question: 'Refunds/Returns Policy?',
+        question: 'Can I change my delivery address?',
         answer:
-          'As a fresh food product we can’t accept returns, but if anything arrives damaged or isn’t right, contact us and we’ll sort it out.',
+          'If you need to change your delivery address, please contact us within 24 hours of placing your order. We’ll do our best to update your address before your order is dispatched, but we can’t guarantee that changes will be possible once your order has started baking or been dispatched.',
+      },
+      {
+        question: 'Returns Policy',
+        answer:
+          'As our cookies are freshly baked to order, we’re unable to accept returns once your order has been dispatched, as returned food products cannot be sold once dispatched.',
+      },
+      {
+        question: 'Refund Policy',
+        answer:
+          'As our cookies are freshly baked to order and perishable goods, we do not accept refunds for change of mind. If your order arrives faulty, damaged, incorrect or not as described, please contact us within 24 hours of delivery with your order number and clear photos of the issue. We’ll review this and where appropriate offer a refund or replacement. Refunds, when approved, can take up to 10 working days to process.',
       },
     ],
   },
@@ -119,12 +124,7 @@ export const faqCategories: FaqCategory[] = [
       {
         question: 'How long do the cookies last?',
         answer:
-          'Best enjoyed within a few days of arrival, kept in an airtight container at room temperature.',
-      },
-      {
-        question: 'Can the cookies be frozen?',
-        answer:
-          'Yes - they freeze well for up to 3 months. Defrost at room temperature or warm gently before eating.',
+          'Our cookies are best enjoyed fresh, but they can be stored in an airtight container at room temperature for up to 5-7 days. For the best texture and flavour we recommend enjoying them as soon as possible after delivery.',
       },
     ],
   },
@@ -135,11 +135,7 @@ export const faqCategories: FaqCategory[] = [
       {
         question: 'Can you heat the cookies up?',
         answer:
-          '10 seconds in the microwave brings back that fresh-baked, gooey centre - our favourite way to eat them.',
-      },
-      {
-        question: 'How big are the cookies?',
-        answer: 'Each cookie is a generous, thick NYC-bakery style bake - built to be shared, or not.',
+          'Yes, 10-20 seconds in the microwave brings back that freshly baked gooey centre. Our favourite way to enjoy them.',
       },
     ],
   },
@@ -150,12 +146,7 @@ export const faqCategories: FaqCategory[] = [
       {
         question: 'Do your cookies contain allergens?',
         answer:
-          'Yes - see our full allergen statement and per-flavour ingredient lists on the Allergens page.',
-      },
-      {
-        question: 'Do you offer vegan or gluten-free options?',
-        answer:
-          'Not currently, but it’s on our radar as we grow the range. Get in touch if that’s something you’d love to see.',
+          'Yes, please see our full allergen statement and per cookie flavour ingredient lists on our Allergens page.',
       },
     ],
   },
@@ -165,7 +156,8 @@ export const faqCategories: FaqCategory[] = [
     items: [
       {
         question: 'How can I get in touch regarding my order?',
-        answer: 'Use the contact form below or email us directly - we usually reply within 1 business day.',
+        answer:
+          'Use the contact form below and we will reply within 1-3 business working days.',
       },
     ],
   },

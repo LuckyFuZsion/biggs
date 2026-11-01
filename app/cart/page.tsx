@@ -133,13 +133,13 @@ export default function CartPage() {
               className="mt-0.5 h-5 w-5 flex-shrink-0 rounded border-biggs-green/30 text-biggs-yellow focus:ring-biggs-yellow"
             />
             <span>
-              I have read the Allergen and Home Kitchen warning and understand these cookies are
-              baked in an environment handling nuts, dairy, soya, gluten and eggs.{' '}
+              I acknowledge that I have read the Allergen information and understand that our
+              kitchen handles wheat (gluten), milk, soya and nuts.{' '}
               <Link
                 href="/allergens"
                 className="underline underline-offset-2 hover:text-biggs-green"
               >
-                See more
+                Read more
               </Link>
               .
             </span>

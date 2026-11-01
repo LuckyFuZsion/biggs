@@ -1,5 +1,6 @@
 import { getFlavours } from '@/lib/flavours';
 import Reveal from '@/components/Reveal';
+import { ALLERGEN_INFO, allergenKey } from '@/lib/allergen-info';
 
 export default async function AllergensPage() {
   const flavours = (await getFlavours()).filter((f) => f.inShop !== false);
@@ -15,13 +16,15 @@ export default async function AllergensPage() {
 
         <Reveal className="mt-8" variant="up">
           <div className="rounded-2xl border border-biggs-green/15 bg-white/50 p-6">
-            <h2 className="font-semibold text-biggs-green">Allergen Statement</h2>
+            <h2 className="font-semibold text-biggs-green">Allergen Information</h2>
             <p className="mt-2 text-biggs-green/80">
-              All Biggs cookies are handmade in a home-kitchen-style environment that handles
-              nuts, dairy, soya, gluten and eggs. While we take great care with cleaning and
-              preparation, we cannot guarantee any product is completely free from traces of
-              these allergens due to the shared nature of our baking space. If you have a severe
-              allergy, please contact us before ordering.
+              All our cookies are homemade in our home kitchen, where allergens including wheat
+              (gluten), milk, soya, peanuts and tree nuts are handled regularly. Although we take
+              care to minimise the risk of cross-contamination, we cannot guarantee that our
+              cookies are completely free from traces of these and other allergens.
+            </p>
+            <p className="mt-3 text-biggs-green/80">
+              Please check the individual allergen information for each cookie before ordering.
             </p>
           </div>
         </Reveal>
@@ -33,18 +36,35 @@ export default async function AllergensPage() {
         </Reveal>
 
         <div className="mt-5 space-y-4">
-          {flavours.map((flavour, i) => (
-            <Reveal key={flavour.id} delay={i * 60} variant="up">
-              <div className="card-lift flex flex-col justify-between gap-2 rounded-xl bg-white/40 p-4 sm:flex-row sm:items-center">
-                <p className="font-semibold text-biggs-green">{flavour.name}</p>
-                <p className="text-sm text-biggs-green/70">
-                  {flavour.allergens.length
-                    ? `Contains: ${flavour.allergens.join(', ')}`
-                    : 'Please ask us for full allergen details.'}
-                </p>
-              </div>
-            </Reveal>
-          ))}
+          {flavours.map((flavour, i) => {
+            const info = ALLERGEN_INFO[allergenKey(flavour.name)];
+            return (
+              <Reveal key={flavour.id} delay={i * 60} variant="up">
+                <div className="rounded-xl bg-white/40 p-5">
+                  <h3 className="font-display text-xl font-bold text-biggs-green">{flavour.name}</h3>
+                  {info ? (
+                    <div className="mt-2 space-y-2 text-sm leading-relaxed text-biggs-green/80">
+                      <p>
+                        <span className="font-bold text-biggs-green">Contains:</span> {info.contains}
+                      </p>
+                      <p>
+                        <span className="font-bold text-biggs-green">May contain:</span>{' '}
+                        {info.mayContain}
+                      </p>
+                      <p>
+                        <span className="font-bold text-biggs-green">Ingredients:</span>{' '}
+                        {info.ingredients}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="mt-2 text-sm text-biggs-green/70">
+                      Please ask us for full allergen details.
+                    </p>
+                  )}
+                </div>
+              </Reveal>
+            );
+          })}
         </div>
       </div>
     </div>

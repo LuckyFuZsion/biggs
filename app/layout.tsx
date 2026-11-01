@@ -40,7 +40,7 @@ const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
   metadataBase: siteUrl,
-  title: 'Biggs Bakes | NYC-Inspired Cookies, Baked in Britain',
+  title: 'Biggs Bakes | Thick. Chunky. Unapologetic',
   description:
     'Thick, gooey, NYC-inspired cookies baked fresh in the UK. Build your own box of 3 from six signature flavours.',
   authors: [{ name: 'WebFuZsion', url: 'https://webfuzsion.co.uk' }],
@@ -56,16 +56,16 @@ export const metadata: Metadata = {
     apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
   },
   openGraph: {
-    title: 'Biggs Bakes | NYC-Inspired Cookies, Baked in Britain',
+    title: 'Biggs Bakes | Thick. Chunky. Unapologetic',
     description:
       'Thick, gooey, NYC-inspired cookies baked fresh in the UK. Build your own box of 3 from six signature flavours.',
     url: siteUrl,
     siteName: 'Biggs Bakes',
     images: [
       {
-        url: '/images/opengraph.jpg',
-        width: 1424,
-        height: 752,
+        url: '/images/opengraph-biggs.jpg',
+        width: 1200,
+        height: 630,
         alt: 'Biggs Bakes cookies',
         type: 'image/jpeg',
       },
@@ -75,10 +75,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Biggs Bakes | NYC-Inspired Cookies, Baked in Britain',
+    title: 'Biggs Bakes | Thick. Chunky. Unapologetic',
     description:
       'Thick, gooey, NYC-inspired cookies baked fresh in the UK. Build your own box of 3 from six signature flavours.',
-    images: ['/images/opengraph.jpg'],
+    images: ['/images/opengraph-biggs.jpg'],
   },
 };
 
