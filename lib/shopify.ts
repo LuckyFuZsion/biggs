@@ -78,11 +78,32 @@ export type ShopifyFlavourProduct = {
   handle: string;
   title: string;
   description: string;
+  descriptionHtml?: string;
   availableForSale: boolean;
   tags: string[];
   images: { nodes: { url: string }[] };
   variants: { nodes: { price: { amount: string } }[] };
 };
+
+/**
+ * Shopify's plain `description` drops the line/paragraph breaks set in the product editor,
+ * so we read the HTML and turn the breaks back into newlines (shown with `whitespace-pre-line`).
+ */
+export function htmlToText(html: string): string {
+  return html
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(p|div|li|h[1-6])>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;|&#x27;/g, "'")
+    .replace(/&amp;/g, '&')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
 
 /** Full product details for the flavour cards (server-side, cached briefly). */
 export async function fetchFlavourProducts(): Promise<ShopifyFlavourProduct[]> {
@@ -94,6 +115,7 @@ export async function fetchFlavourProducts(): Promise<ShopifyFlavourProduct[]> {
             handle
             title
             description
+            descriptionHtml
             availableForSale
             tags
             images(first: 2) {

@@ -2,6 +2,7 @@ import { flavours as staticFlavours } from './data';
 import { Flavour } from './types';
 import {
   fetchFlavourProducts,
+  htmlToText,
   isShopifyConfigured,
   matchFlavourId,
   ShopifyFlavourProduct,
@@ -71,7 +72,10 @@ function fromProduct(
     id: base?.id ?? product.handle,
     slug: base?.slug ?? product.handle,
     name: product.title || base?.name || product.handle,
-    description: product.description?.trim() || base?.description || '',
+    description:
+      (product.descriptionHtml ? htmlToText(product.descriptionHtml) : product.description?.trim()) ||
+      base?.description ||
+      '',
     price: base?.price ?? Number(product.variants.nodes[0]?.price.amount ?? 0),
     image: main?.url ?? base?.image ?? '/images/cookies-box.webp',
     hoverImage: hover?.url ?? base?.hoverImage,
