@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import Reveal from './Reveal';
 import { useSiteImage } from './SiteImagesProvider';
@@ -15,8 +14,9 @@ import { useSiteImage } from './SiteImagesProvider';
 const SUBSCRIBE_URL = process.env.NEXT_PUBLIC_SUBSCRIBE_URL;
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 const CONSENT =
-  'By signing up you agree to receive emails from Biggs Bakes about new drops & flavours. Unsubscribe at any time.';
-const COMPANY_LINE = 'Biggs Productions Limited, 86-90 Paul Street, London EC2A 4NE';
+  'By signing up you agree to receive emails from Biggs cookies about\nnew drops & flavours. Unsubscribe at any time.';
+const COMPANY_LINE =
+  'Biggs Productions Limited, registered in England and Wales, company no. 16768990, 86-90 Paul Street, London EC2A 4NE';
 
 type TurnstileApi = {
   render: (el: HTMLElement, opts: Record<string, unknown>) => string;
@@ -43,7 +43,8 @@ export default function MailingList() {
   const widgetEl = useRef<HTMLDivElement>(null);
 
   const configured = Boolean(SUBSCRIBE_URL && TURNSTILE_SITE_KEY);
-  const cardSrc = useSiteImage('mailing', '/images/chocolate-chip.webp');
+  const cardSrc = useSiteImage('mailing', '/images/red-velvet.webp');
+  const logoSrc = useSiteImage('logo', '/images/logo.webp');
 
   useEffect(() => {
     if (!configured || !widgetEl.current) return;
@@ -96,7 +97,7 @@ export default function MailingList() {
           hp: honeypot,
           elapsed: Date.now() - loadedAt.current,
           source: 'main-site',
-          consent: CONSENT,
+          consent: CONSENT.replace('\n', ' '),
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -118,81 +119,94 @@ export default function MailingList() {
 
   return (
     <section className="bg-biggs-cream pb-16 md:pb-20">
-      <Reveal className="mx-auto max-w-6xl px-6">
-        <div className="overflow-hidden rounded-[2rem] bg-biggs-green md:grid md:grid-cols-2 md:items-stretch">
-          <div className="relative min-h-[220px] md:min-h-[280px]">
-            <Image
-              src={cardSrc}
-              alt="Gooey Biggs chocolate chip cookie"
-              fill
-              className="object-cover object-center"
-              sizes="(max-width: 768px) 100vw, 50vw"
-            />
+      <Reveal className="mx-auto max-w-5xl px-6">
+        <div className="rounded-[2rem] bg-biggs-green">
+          {/* Logo across the top */}
+          <div className="flex justify-center border-b border-biggs-cream/10 px-8 pb-3 pt-6">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={logoSrc} alt="Biggs" className="mb-2 h-14 w-auto md:h-16" />
           </div>
 
-          <div className="flex flex-col justify-center px-8 py-10 md:px-12 md:py-14">
-            <h2 className="font-display text-3xl font-bold leading-tight text-biggs-cream md:text-4xl">
-              Be the first to get Biggs cookies.
-            </h2>
-            <p className="mt-3 max-w-sm text-sm text-biggs-cream/70 md:text-base">
-              Sign up to get early access to the next drop of new flavours.
-            </p>
+          <div className="md:grid md:aspect-[2.36/1] md:grid-cols-2 md:items-stretch">
+            {/* Cut-out cookie: whole cookie shows on phones; on wider screens it spills over the card edges */}
+            <div className="relative h-[min(78vw,300px)] md:h-auto">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={cardSrc}
+                alt="A red velvet Biggs cookie with white chocolate drizzle"
+                className="absolute inset-0 h-full w-full object-contain md:inset-auto md:left-[5%] md:top-[calc(50%+12px)] md:h-[108%] md:w-auto md:max-w-none md:-translate-y-1/2"
+              />
+            </div>
 
-            {status === 'done' ? (
-              <p className="mt-8 font-semibold text-biggs-yellow" role="status">
-                Thanks! Check your inbox and click the link to confirm.
+            <div
+              className="flex flex-col items-center justify-center px-8 py-10 text-center md:px-12 md:py-14"
+              style={{ containerType: 'inline-size' }}
+            >
+              <h2 className="whitespace-pre-line font-display text-[length:min(1.875rem,9.2cqw)] font-bold leading-[1.25] text-biggs-cream md:text-[length:min(2.25rem,9.2cqw)]">
+                {'Be the first to get\nBiggs cookies'}
+              </h2>
+              <p className="mt-4 whitespace-nowrap text-[length:min(0.875rem,3.9cqw)] font-semibold text-biggs-cream/70 md:text-[length:min(1rem,3.9cqw)]">
+                Sign up to get updates on the next cookie drop
               </p>
-            ) : (
-              <>
-                <form onSubmit={handleSubmit} className="relative mt-8 max-w-md" noValidate>
-                  <label htmlFor="mailing-email" className="sr-only">
-                    Email address
-                  </label>
-                  <input
-                    id="mailing-email"
-                    type="email"
-                    required
-                    maxLength={254}
-                    autoComplete="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Your email address"
-                    className="w-full rounded-full border-0 bg-biggs-cream py-4 pl-5 pr-14 text-biggs-green placeholder:text-biggs-green/40 focus:outline-none focus:ring-2 focus:ring-biggs-yellow"
-                  />
-                  {/* Honeypot: hidden from people, filled by bots */}
-                  <input
-                    type="text"
-                    name="company"
-                    tabIndex={-1}
-                    autoComplete="off"
-                    aria-hidden="true"
-                    value={honeypot}
-                    onChange={(e) => setHoneypot(e.target.value)}
-                    className="absolute -left-[9999px] h-px w-px opacity-0"
-                  />
-                  <button
-                    type="submit"
-                    aria-label="Sign up"
-                    disabled={status === 'sending'}
-                    className="btn-pop absolute right-1.5 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-biggs-yellow text-lg font-bold text-biggs-green disabled:opacity-60"
-                  >
-                    →
-                  </button>
-                </form>
-                <div ref={widgetEl} className="mt-2 max-w-md" />
-                <p className="mt-3 min-h-[1.25rem] text-sm font-semibold text-red-300" role="alert">
-                  {error}
+
+              {status === 'done' ? (
+                <p className="mt-8 font-semibold text-biggs-yellow" role="status">
+                  Thanks! Check your inbox and click the link to confirm.
                 </p>
-                <p className="max-w-md text-xs font-medium leading-relaxed text-biggs-cream/50">
-                  {CONSENT}
-                </p>
-              </>
-            )}
-            <p className="mt-4 max-w-md text-[11px] leading-relaxed text-biggs-cream/40">
-              {COMPANY_LINE}
-            </p>
+              ) : (
+                <>
+                  <form onSubmit={handleSubmit} className="relative mt-8 w-full max-w-md" noValidate>
+                    <label htmlFor="mailing-email" className="sr-only">
+                      Email address
+                    </label>
+                    <input
+                      id="mailing-email"
+                      type="email"
+                      required
+                      maxLength={254}
+                      autoComplete="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Your email address"
+                      className="w-full rounded-full border-0 bg-biggs-cream py-4 pl-5 pr-14 text-biggs-green placeholder:text-biggs-green/40 focus:outline-none focus:ring-2 focus:ring-biggs-yellow"
+                    />
+                    {/* Honeypot: hidden from people, filled by bots */}
+                    <input
+                      type="text"
+                      name="company"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      aria-hidden="true"
+                      value={honeypot}
+                      onChange={(e) => setHoneypot(e.target.value)}
+                      className="absolute -left-[9999px] h-px w-px opacity-0"
+                    />
+                    <button
+                      type="submit"
+                      aria-label="Sign up"
+                      disabled={status === 'sending'}
+                      className="btn-pop absolute right-1.5 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-biggs-yellow text-lg font-bold text-biggs-green disabled:opacity-60"
+                    >
+                      →
+                    </button>
+                  </form>
+                  <div ref={widgetEl} className="mt-2 w-full max-w-md" />
+                  <p className="mt-3 min-h-[1.25rem] text-sm font-semibold text-red-300" role="alert">
+                    {error}
+                  </p>
+                  {/* Two lines as requested; on phones it is sized to fit and borrows a little side padding */}
+                  <p className="-mx-[1.6rem] whitespace-pre-line text-[length:min(0.75rem,calc((100cqw+3.2rem)/35.5))] font-medium leading-relaxed text-biggs-cream/50 md:mx-0 md:text-xs">
+                    {CONSENT}
+                  </p>
+                </>
+              )}
+            </div>
           </div>
         </div>
+
+        <p className="mt-5 text-center text-xs font-medium leading-relaxed text-biggs-green/65 md:mt-9">
+          {COMPANY_LINE}
+        </p>
       </Reveal>
     </section>
   );
