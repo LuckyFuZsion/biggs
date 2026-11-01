@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { siteConfig } from '@/lib/data';
 import Reveal from './Reveal';
 import { siteImage } from '@/lib/site-images';
+import CookieChoicesButton from './CookieChoicesButton';
 
 const LINK_COL_ONE = [
   { href: '/shop', label: 'Shop' },
@@ -111,6 +112,7 @@ export default async function Footer() {
                     </Link>
                   </li>
                 ))}
+                <CookieChoicesButton />
               </ul>
             </nav>
           </div>

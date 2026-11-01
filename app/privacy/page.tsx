@@ -43,6 +43,15 @@ export default function PrivacyPage() {
           </div>
 
           <div>
+            <h2 className="font-display text-xl font-bold text-biggs-green">Analytics Cookies</h2>
+            <p className="mt-2">
+              If you accept them in our cookie banner, we use Google Analytics (through Firebase) to see
+              which pages are popular and how the site is used. Nothing is tracked unless you accept, and
+              you can change your choice at any time using &ldquo;Cookie choices&rdquo; in the footer.
+            </p>
+          </div>
+
+          <div>
             <h2 className="font-display text-xl font-bold text-biggs-green">Sharing</h2>
             <p className="mt-2">
               We only share your information with the third parties needed to fulfil your
