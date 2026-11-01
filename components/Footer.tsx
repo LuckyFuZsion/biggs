@@ -7,9 +7,8 @@ import CookieChoicesButton from './CookieChoicesButton';
 
 const LINK_COL_ONE = [
   { href: '/shop', label: 'Shop' },
-  { href: '/shop#cookies', label: 'Our Cookies' },
-  { href: '/faq#ordering-delivery', label: 'Delivery' },
   { href: '/allergens', label: 'Allergens' },
+  { href: '/faq#ordering-delivery', label: 'Delivery' },
   { href: '/terms', label: 'Terms & Conditions' },
 ];
 
@@ -122,7 +121,8 @@ export default async function Footer() {
             <p className="nav-tracking text-xs font-semibold uppercase text-biggs-yellow">
               Follow Us
             </p>
-            <div className="mt-4 flex items-center gap-4">
+            <p className="mt-3 text-sm text-biggs-yellow">@biggsbakes</p>
+            <div className="mt-3 flex items-center gap-4">
               <a
                 href={siteConfig.social.instagram}
                 target="_blank"
@@ -149,7 +149,6 @@ export default async function Footer() {
                 <EmailIcon className="h-6 w-6" />
               </a>
             </div>
-            <p className="mt-3 text-sm text-biggs-yellow">@biggsbakes</p>
             <p className="nav-tracking mt-6 text-[10px] font-medium uppercase text-biggs-yellow/70">
               We accept
             </p>

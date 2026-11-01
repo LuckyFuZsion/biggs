@@ -54,22 +54,6 @@ export default function BuildYourBoxSection({ flavours }: { flavours: Flavour[] 
     setJustAdded(false);
   }
 
-  function surpriseMe() {
-    const pool = boxFlavours.filter((f) => !isSoldOut(f));
-    if (pool.length === 0) return;
-    setPicked((prev) => {
-      const next = [...prev];
-      // Prefer flavours not already in the box so the surprise is a varied one.
-      while (next.length < BOX_SIZE) {
-        const fresh = pool.filter((f) => !next.includes(f.id));
-        const source = fresh.length > 0 ? fresh : pool;
-        next.push(source[Math.floor(Math.random() * source.length)].id);
-      }
-      return next;
-    });
-    setJustAdded(false);
-  }
-
   function handleAddToCart() {
     if (!full) return;
     const [f1, f2, f3] = picked.map((id) => byId(id)?.name ?? '');
@@ -95,25 +79,19 @@ export default function BuildYourBoxSection({ flavours }: { flavours: Flavour[] 
               Build Your Box
             </p>
             <h2 className="mt-2 font-display text-3xl font-bold leading-tight text-biggs-cream md:text-4xl">
-              Biggs Things Come in Threes
+              Biggs Things Come In Three’s
             </h2>
             <p className="mt-2 text-xl font-semibold text-biggs-yellow">
               £{product.price.toFixed(2)}
-              <span className="ml-2 text-xs font-semibold text-biggs-yellow/80">
-                (inc free delivery across the UK)
-              </span>
             </p>
             <p className="mt-3 text-sm leading-relaxed text-biggs-cream/75">
               {product.description}
             </p>
-            <p className="nav-tracking mt-3 text-xs font-bold uppercase text-biggs-yellow">
-              Go big. Go chunky.
-            </p>
           </div>
 
-          <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_380px] lg:items-start lg:gap-10">
+          <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_380px] lg:items-center lg:gap-10">
             {/* Box preview: first on mobile so progress stays in view, right-hand column on desktop */}
-            <div className="lg:sticky lg:top-28 lg:order-2">
+            <div className="lg:order-2">
               <div className="rounded-2xl bg-[#e8d9c8] p-4 shadow-[inset_0_2px_10px_rgba(36,48,38,0.15)] sm:p-5">
                 <div className="mb-3 flex items-center justify-between">
                   <p className="nav-tracking text-xs font-bold uppercase text-biggs-green">
@@ -170,14 +148,6 @@ export default function BuildYourBoxSection({ flavours }: { flavours: Flavour[] 
               </div>
 
               <div className="mt-4 flex gap-3">
-                <button
-                  type="button"
-                  onClick={surpriseMe}
-                  disabled={full}
-                  className="btn-pop flex-1 rounded-full border border-biggs-yellow/60 px-4 py-3 text-sm font-semibold text-biggs-yellow transition hover:border-biggs-yellow hover:text-biggs-cream disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  🎲 Surprise me
-                </button>
                 {picked.length > 0 && (
                   <button
                     type="button"
@@ -208,7 +178,9 @@ export default function BuildYourBoxSection({ flavours }: { flavours: Flavour[] 
               )}
 
               <p className="mt-4 text-xs leading-relaxed text-biggs-cream/50">
-                Baked in an environment handling nuts, dairy, soya, gluten and eggs.{' '}
+                All our cookies contain:{' '}
+                <strong className="font-bold text-biggs-cream/80">WHEAT (GLUTEN), MILK, EGG, SOYA.</strong>{' '}
+                May contain: <strong className="font-bold text-biggs-cream/80">Nuts.</strong>{' '}
                 <Link
                   href="/allergens"
                   className="underline underline-offset-2 transition hover:text-biggs-cream"
@@ -222,7 +194,7 @@ export default function BuildYourBoxSection({ flavours }: { flavours: Flavour[] 
             {/* Flavour tiles */}
             <div className="lg:order-1">
               <p className="nav-tracking text-xs font-semibold uppercase text-biggs-yellow/80">
-                Tap to add - pick any {BOX_SIZE}, doubles welcome
+                Tap to add - pick any {BOX_SIZE}
               </p>
               <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {boxFlavours.map((flavour) => {

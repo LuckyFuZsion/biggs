@@ -63,7 +63,7 @@ export default function ShopProductCard({ flavour }: { flavour: Flavour }) {
         <h2 className="min-h-[3.5rem] font-display text-xl font-bold leading-tight text-biggs-green md:min-h-[4rem] md:text-2xl">
           {flavour.name}
         </h2>
-        <p className="mt-2 min-h-[4.5rem] text-sm font-medium leading-relaxed text-biggs-green/65">
+        <p className="mt-2 min-h-[4.5rem] whitespace-pre-line text-sm font-medium leading-relaxed text-biggs-green/65">
           {flavour.description}
         </p>
       </div>

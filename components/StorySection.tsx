@@ -4,7 +4,7 @@ import ParallaxImage from './ParallaxImage';
 import { siteImage } from '@/lib/site-images';
 
 export default async function StorySection() {
-  const storySrc = await siteImage('story', '/images/our-story.webp');
+  const storySrc = await siteImage('story', '/images/our-story-stack.webp');
   return (
     <section className="bg-biggs-cream py-16 md:py-20">
       <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 md:grid-cols-2">
@@ -21,15 +21,16 @@ export default async function StorySection() {
         </Reveal>
         <Reveal variant="right" delay={120}>
           <div>
-            <p className="nav-tracking mb-3 text-xs font-semibold uppercase text-biggs-green/60">
-              Born In Britain. Inspired By New York.
-            </p>
-            <h2 className="font-display text-3xl font-bold text-biggs-green md:text-4xl">
-              A simple obsession.
+            <h2 className="font-display text-4xl font-bold leading-tight text-biggs-green md:text-5xl">
+              Go Biggs.
+              <br />
+              Go Chunky.
             </h2>
             <p className="mt-4 max-w-md text-biggs-green/70">
-              Biggs began with a shared obsession: the thick, indulgent cookies you’d queue for
-              in Manhattan, made with incredible British ingredients right here at home.
+              Behind every Biggs cookie are two overly-obsessed cookie lovers. Bringing thick,
+              gooey and ridiculously stuffed cookies to you.
+              <br />
+              Six flavours at a time.
             </p>
             <Link
               href="/about"
