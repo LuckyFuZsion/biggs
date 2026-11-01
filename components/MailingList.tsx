@@ -134,7 +134,7 @@ export default function MailingList() {
               <img
                 src={cardSrc}
                 alt="A red velvet Biggs cookie with white chocolate drizzle"
-                className="absolute inset-0 h-full w-full object-contain md:inset-auto md:left-[5%] md:top-[calc(50%+12px)] md:h-[108%] md:w-auto md:max-w-none md:-translate-y-1/2"
+                className="absolute inset-0 h-full w-full object-contain md:inset-x-[6%] md:inset-y-[7%] md:h-[86%] md:w-[88%]"
               />
             </div>
 
