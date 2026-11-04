@@ -111,7 +111,7 @@ export default function PrivacyPage() {
           <strong className="font-bold text-biggs-green">Payment providers:</strong> Process payments for your purchases; Shopify Payments, PayPal &amp; Apple
           Pay.
         </li>
-        <li><strong className="font-bold text-biggs-green">Delivery providers:</strong> Deliver your orders. Our delivery provider is DPD.</li>
+        <li><strong className="font-bold text-biggs-green">Delivery providers:</strong> Deliver your orders. Our delivery provider is Royal Mail.</li>
         <li>
           <strong className="font-bold text-biggs-green">Resend:</strong> Sends the confirmation email when you sign up to our mailing list, and our welcome
           email where applicable.

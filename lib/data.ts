@@ -88,12 +88,12 @@ export const faqCategories: FaqCategory[] = [
       {
         question: 'When will my order arrive?',
         answer:
-          'We aim for your cookies to arrive at your door within 5–10 working days of placing your order. Every box is baked fresh to order, so there can be a short wait before your cookies are dispatched. Once baked, your order is sent via a tracked 24-hour delivery service.',
+          'We aim for your cookies to arrive at your door within 2–10 working days of placing your order. Every box is baked fresh to order, so there can be a short wait before your cookies are dispatched. Once baked, your order is sent via a tracked 24-hour delivery service. (If you’ve ordered multiple boxes your order may arrive in separate parcels.)',
       },
       {
         question: 'Where do you deliver and how much does delivery cost?',
         answer:
-          'We deliver across the UK via a tracked 24-hour delivery service. As soon as your order is on its way, you’ll receive a delivery confirmation via text and/or email with your tracking details, so you can keep an eye on your cookie delivery.',
+          'We deliver across the UK using our courier service Royal Mail via a tracked 24-hour delivery service. As soon as your order is on its way, you’ll receive a delivery confirmation via text and/or email with your tracking details, so you can keep an eye on your cookie delivery.',
       },
       {
         question: 'Can I cancel my order?',
@@ -135,7 +135,7 @@ export const faqCategories: FaqCategory[] = [
       {
         question: 'Can you heat the cookies up?',
         answer:
-          'Yes, 10-20 seconds in the microwave brings back that freshly baked gooey centre. Our favourite way to enjoy them.',
+          'Yes, 10-15 seconds in the microwave brings back that freshly baked gooey centre. Our favourite way to enjoy them.',
       },
     ],
   },
