@@ -63,7 +63,7 @@ export const metadata: Metadata = {
     siteName: 'Biggs Bakes',
     images: [
       {
-        url: '/images/opengraph-biggs.jpg',
+        url: '/images/opengraph-hero.jpg',
         width: 1200,
         height: 630,
         alt: 'Biggs Bakes cookies',
@@ -78,7 +78,7 @@ export const metadata: Metadata = {
     title: 'Biggs Bakes | Thick. Chunky. Unapologetic',
     description:
       'Thick, gooey, NYC-inspired cookies baked fresh in the UK. Build your own box of 3 from six signature flavours.',
-    images: ['/images/opengraph-biggs.jpg'],
+    images: ['/images/opengraph-hero.jpg'],
   },
 };
 

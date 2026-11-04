@@ -9,7 +9,7 @@ import { useSiteImage } from './SiteImagesProvider';
 
 const NAV_LINKS = [
   { href: '/', label: 'Home', match: '/' },
-  { href: '/shop', label: 'Our Cookies', match: '/shop' },
+  { href: '/shop', label: 'Shop', match: '/shop' },
   { href: '/about', label: 'Our Story', match: '/about' },
   { href: '/faq', label: 'FAQ', match: '/faq' },
 ];

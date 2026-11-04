@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { FaqCategory } from '@/lib/types';
 import Reveal from './Reveal';
@@ -40,7 +41,7 @@ export default function FaqAccordion({ categories }: { categories: FaqCategory[]
                       }`}
                     >
                       <div className="overflow-hidden">
-                        <p className="px-5 pb-4 text-sm text-biggs-green/70">{item.answer}</p>
+                        <p className="px-5 pb-4 text-sm text-biggs-green/70">{renderAnswer(item.answer)}</p>
                       </div>
                     </div>
                   </div>
@@ -51,5 +52,21 @@ export default function FaqAccordion({ categories }: { categories: FaqCategory[]
         </Reveal>
       ))}
     </div>
+  );
+}
+
+/** Turns the words "Allergens page" in an answer into a link to that page. */
+function renderAnswer(answer: string) {
+  const parts = answer.split('Allergens page');
+  if (parts.length === 1) return answer;
+  return parts.flatMap((part, i) =>
+    i === 0
+      ? [part]
+      : [
+          <Link key={i} href="/allergens" className="font-bold underline underline-offset-2">
+            Allergens page
+          </Link>,
+          part,
+        ]
   );
 }

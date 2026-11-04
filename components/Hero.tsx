@@ -33,7 +33,7 @@ export default async function Hero() {
             width={1024}
             height={1024}
             priority
-            className="h-auto w-full max-h-[48vh] object-contain md:max-h-[460px]"
+            className="h-auto w-full max-h-[48vh] object-contain md:max-h-[620px] md:scale-110"
           />
         </div>
       </div>

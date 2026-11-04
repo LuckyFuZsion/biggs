@@ -75,7 +75,7 @@ export const products: Product[] = [
     description:
       'Choose any 3 of our six signature flavours and build your perfect box.',
     price: 16.95,
-    image: '/images/cookies-box.webp',
+    image: '/images/shop-hero-box.webp',
     type: 'box-of-3',
   },
 ];
