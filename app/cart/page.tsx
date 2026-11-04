@@ -134,7 +134,11 @@ export default function CartPage() {
             />
             <span>
               I acknowledge that I have read the Allergen information and understand that our
-              kitchen handles wheat (gluten), milk, soya and nuts.{' '}
+              kitchen handles{' '}
+              <strong className="font-bold text-biggs-green">
+                WHEAT (GLUTEN), MILK, SOYA, EGGS
+              </strong>{' '}
+              and <strong className="font-bold text-biggs-green">NUTS</strong>.{' '}
               <Link
                 href="/allergens"
                 className="underline underline-offset-2 hover:text-biggs-green"
