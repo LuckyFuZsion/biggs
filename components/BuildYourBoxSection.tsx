@@ -63,7 +63,14 @@ export default function BuildYourBoxSection({ flavours }: { flavours: Flavour[] 
       title: product.title,
       price: product.price,
       image: boxSrc,
-      properties: { flavour1: f1, flavour2: f2, flavour3: f3 },
+      properties: {
+        flavour1: f1,
+        flavour2: f2,
+        flavour3: f3,
+        handle1: byId(picked[0])?.shopifyHandle,
+        handle2: byId(picked[1])?.shopifyHandle,
+        handle3: byId(picked[2])?.shopifyHandle,
+      },
     });
 
     setJustAdded(true);

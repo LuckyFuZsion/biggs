@@ -48,7 +48,7 @@ type ProductNode = {
   handle: string;
   title: string;
   availableForSale: boolean;
-  variants: { nodes: { id: string; availableForSale: boolean }[] };
+  variants: { nodes: { id: string; availableForSale: boolean; price: { amount: string } }[] };
 };
 
 const PRODUCTS_QUERY = /* GraphQL */ `
@@ -62,6 +62,9 @@ const PRODUCTS_QUERY = /* GraphQL */ `
           nodes {
             id
             availableForSale
+            price {
+              amount
+            }
           }
         }
       }
@@ -169,7 +172,19 @@ export async function fetchSoldOutHandles(): Promise<Record<string, boolean>> {
   return soldOut;
 }
 
-/** Creates a Shopify cart from our local cart and returns the hosted checkout URL. */
+/** Shown to the customer as-is when checkout cannot be started for a reason they can fix. */
+export class CheckoutError extends Error {}
+
+/**
+ * Creates a Shopify cart from our local cart and returns the hosted checkout URL.
+ *
+ * Each box is the "Build Your Box" product (GBP 16.95) plus one line per chosen flavour. The flavour products
+ * are priced GBP 0, so the total is unchanged, but Shopify now counts each flavour's stock down and the order
+ * and dispatch note list the real flavours and SKUs. The "Cookie 1/2/3" notes stay on the box line as well.
+ *
+ * If Shopify cannot supply the full quantity of any line (a flavour has sold out since the page loaded), we stop
+ * instead of sending the customer to a checkout with fewer cookies than they chose.
+ */
 export async function createCheckout(
   items: CartItem[],
   options: { allergenAccepted: boolean }
@@ -181,19 +196,39 @@ export async function createCheckout(
     throw new Error('The box product could not be found in Shopify.');
   }
 
-  const lines = items.map((item) => {
+  const lines: { merchandiseId: string; quantity: number; attributes?: { key: string; value: string }[] }[] = [];
+  const flavourQty = new Map<string, number>(); // flavour variant id -> total cookies wanted
+  const names = new Map<string, string>(); // flavour variant id -> product title
+
+  for (const item of items) {
     const p = item.properties ?? {};
     const attributes = [
       p.flavour1 && { key: 'Cookie 1', value: p.flavour1 },
       p.flavour2 && { key: 'Cookie 2', value: p.flavour2 },
       p.flavour3 && { key: 'Cookie 3', value: p.flavour3 },
-    ].filter(Boolean);
-    return { merchandiseId: variantId, quantity: item.quantity, attributes };
-  });
+    ].filter(Boolean) as { key: string; value: string }[];
+    lines.push({ merchandiseId: variantId, quantity: item.quantity, attributes });
+
+    for (const handle of [p.handle1, p.handle2, p.handle3]) {
+      if (!handle) continue;
+      const flavour = products.find((x) => x.handle === handle);
+      const variant = flavour?.variants.nodes[0];
+      const id = variant?.id;
+      // Flavour not found, or not priced at GBP 0 yet: skip its line so the customer is never charged for it.
+      // The box still goes through with its Cookie 1/2/3 notes.
+      if (!flavour || !id || Number(variant?.price.amount) !== 0) continue;
+      flavourQty.set(id, (flavourQty.get(id) ?? 0) + item.quantity);
+      names.set(id, flavour.title);
+    }
+  }
+  for (const [id, quantity] of flavourQty) lines.push({ merchandiseId: id, quantity });
 
   const data = await storefront<{
     cartCreate: {
-      cart: { checkoutUrl: string } | null;
+      cart: {
+        checkoutUrl: string;
+        lines: { nodes: { quantity: number; merchandise: { id: string } }[] };
+      } | null;
       userErrors: { message: string }[];
     };
   }>(
@@ -202,6 +237,16 @@ export async function createCheckout(
         cartCreate(input: $input) {
           cart {
             checkoutUrl
+            lines(first: 50) {
+              nodes {
+                quantity
+                merchandise {
+                  ... on ProductVariant {
+                    id
+                  }
+                }
+              }
+            }
           }
           userErrors {
             message
@@ -225,6 +270,24 @@ export async function createCheckout(
   const { cart, userErrors } = data.cartCreate;
   if (!cart || userErrors.length) {
     throw new Error(userErrors[0]?.message || 'Could not create the checkout.');
+  }
+
+  // Did Shopify accept everything we asked for? It quietly lowers a quantity when stock runs short.
+  const accepted = new Map<string, number>();
+  for (const n of cart.lines.nodes) {
+    accepted.set(n.merchandise.id, (accepted.get(n.merchandise.id) ?? 0) + n.quantity);
+  }
+  const wanted = new Map<string, number>();
+  for (const l of lines) wanted.set(l.merchandiseId, (wanted.get(l.merchandiseId) ?? 0) + l.quantity);
+  for (const [id, quantity] of wanted) {
+    if ((accepted.get(id) ?? 0) < quantity) {
+      const what = names.get(id);
+      throw new CheckoutError(
+        what
+          ? `Sorry, we don't have enough ${what} left for your box. Please change a flavour and try again.`
+          : 'Sorry, we have sold out of boxes. Please check back soon.'
+      );
+    }
   }
   return cart.checkoutUrl;
 }

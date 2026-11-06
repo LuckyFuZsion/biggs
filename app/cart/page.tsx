@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useCart } from '@/components/CartProvider';
-import { createCheckout, isShopifyConfigured } from '@/lib/shopify';
+import { CheckoutError, createCheckout, isShopifyConfigured } from '@/lib/shopify';
 import Reveal from '@/components/Reveal';
 
 const PAYMENT_ICONS = ['Visa', 'Mastercard', 'PayPal', 'Apple Pay'];
@@ -30,8 +30,12 @@ export default function CartPage() {
     try {
       const url = await createCheckout(items, { allergenAccepted: agreed });
       window.location.href = url;
-    } catch {
-      setError('Sorry, we could not start checkout. Please try again in a moment.');
+    } catch (e) {
+      setError(
+        e instanceof CheckoutError
+          ? e.message
+          : 'Sorry, we could not start checkout. Please try again in a moment.'
+      );
       setCheckingOut(false);
     }
   }

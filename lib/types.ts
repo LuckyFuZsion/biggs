@@ -38,6 +38,10 @@ export interface CartLineProperties {
   flavour1?: string;
   flavour2?: string;
   flavour3?: string;
+  /** Shopify product handles of the three flavours, used to add each flavour as its own GBP 0 line. */
+  handle1?: string;
+  handle2?: string;
+  handle3?: string;
 }
 
 export interface CartItem {
