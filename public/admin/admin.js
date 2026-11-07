@@ -142,7 +142,7 @@ onAuthStateChanged(auth, async (user) => {
 document.querySelectorAll('.tab').forEach((tab) => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('is-active', t === tab));
-    for (const name of ['content', 'images', 'subscribers', 'security']) {
+    for (const name of ['content', 'images', 'subscribers', 'send', 'security']) {
       $('#tab-' + name).hidden = tab.dataset.tab !== name;
     }
   });
@@ -451,6 +451,149 @@ $('#download-csv').addEventListener('click', () => {
   document.body.append(a);
   a.click();
   setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+});
+
+// ------------------------------------------------------------------ send email + import
+// These call the Worker with the admin's own sign-in token. The Worker checks it again, so this page alone can
+// never send anything.
+async function adminApi(path, body) {
+  const token = await auth.currentUser.getIdToken();
+  const base = ((window.BIGGS_CONFIG || {}).apiBase || '').replace(/\/+$/, '');
+  const res = await fetch(base + path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+    body: JSON.stringify(body),
+  });
+  return { status: res.status, data: await res.json().catch(() => ({})) };
+}
+
+const sendFields = () => ({
+  subject: $('#send-subject').value.trim(),
+  message: $('#send-message').value.trim(),
+  buttonLabel: $('#send-button-label').value.trim(),
+  buttonUrl: $('#send-button-url').value.trim(),
+});
+const sendKey = (f) => JSON.stringify([f.subject, f.message, f.buttonLabel, f.buttonUrl]);
+let testedKey = null;
+
+function sendProblem(f) {
+  if (!f.subject || !f.message) return 'Please write a subject and a message first.';
+  if ((f.buttonLabel || f.buttonUrl) && (!f.buttonLabel || !/^https:\/\//.test(f.buttonUrl))) {
+    return 'For a button, add both the text and a link that starts with https://';
+  }
+  return '';
+}
+
+const SEND_ERRORS = {
+  rate_limited: 'You have sent too many in the last hour. Please wait a little while.',
+  not_admin: 'Your sign-in has expired. Please sign out and in again.',
+  no_recipients: 'There are no confirmed subscribers to send to yet.',
+  too_many: 'The list is larger than one send allows. Ask your web developer.',
+  bad_button: 'For a button, add both the text and a link that starts with https://',
+  email_failed: 'The email service refused it. Nothing more was sent.',
+};
+
+$('#send-test').addEventListener('click', async () => {
+  const f = sendFields();
+  const problem = sendProblem(f);
+  if (problem) return say('#send-msg', problem, 'error');
+  const btn = $('#send-test');
+  btn.disabled = true;
+  say('#send-msg', 'Sending a test...');
+  try {
+    const { data } = await adminApi('/api/admin/newsletter', { ...f, mode: 'test' });
+    if (data.ok) {
+      testedKey = sendKey(f);
+      say('#send-msg', 'Test sent to ' + data.sentTo + '. Check your inbox and junk folder. If it looks right, you can send it to everyone.', 'ok');
+    } else {
+      say('#send-msg', SEND_ERRORS[data.error] || 'The test could not be sent. Please try again.', 'error');
+    }
+  } catch {
+    say('#send-msg', 'Could not reach the sending service. Please try again.', 'error');
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+$('#send-all').addEventListener('click', async () => {
+  const f = sendFields();
+  const problem = sendProblem(f);
+  if (problem) return say('#send-msg', problem, 'error');
+  if (testedKey !== sendKey(f)) return say('#send-msg', 'Please press "Send me a test" for this exact message first, and check it.', 'error');
+  const count = subscribers.filter((s) => s.status === 'confirmed').length;
+  if (!count) return say('#send-msg', 'There are no confirmed subscribers to send to yet.', 'error');
+  if (!confirm('Send "' + f.subject + '" to ' + count + ' confirmed subscriber' + (count === 1 ? '' : 's') + '?\n\nThis cannot be undone.')) return;
+  const btn = $('#send-all');
+  btn.disabled = true;
+  say('#send-msg', 'Sending... please keep this page open.');
+  try {
+    const { data } = await adminApi('/api/admin/newsletter', { ...f, mode: 'send', expected: count });
+    if (data.ok) {
+      testedKey = null;
+      say('#send-msg', 'Sent to ' + data.sent + ' subscriber' + (data.sent === 1 ? '' : 's') + '.', 'ok');
+    } else if (data.error === 'count_changed') {
+      say('#send-msg', 'The list changed just now (it is now ' + data.count + ' people). Nothing was sent. Press send again to confirm the new number.', 'error');
+    } else if (data.error === 'email_failed' && data.sent != null) {
+      say('#send-msg', 'Stopped part way: ' + data.sent + ' of ' + data.total + ' were sent. Do not press send again. Ask your web developer.', 'error');
+    } else {
+      say('#send-msg', SEND_ERRORS[data.error] || 'It could not be sent. Please try again.', 'error');
+    }
+  } catch {
+    say('#send-msg', 'Lost contact part way. Check with your web developer before trying again, so nobody gets it twice.', 'error');
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// Import
+const EMAIL_FINDER = /[A-Za-z0-9][A-Za-z0-9._%+'-]*@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/g;
+$('#import-file').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) return say('#import-msg', 'That file is too big. Use a file under 2 MB.', 'error');
+  const text = await file.text();
+  $('#import-list').value = text;
+  const n = new Set((text.match(EMAIL_FINDER) || []).map((x) => x.toLowerCase())).size;
+  say('#import-msg', 'Found ' + n + ' email address' + (n === 1 ? '' : 'es') + ' in the file. Choose how to add them, then press Import.', 'ok');
+});
+
+$('#import-go').addEventListener('click', async () => {
+  const emails = [...new Set(($('#import-list').value.match(EMAIL_FINDER) || []).map((x) => x.toLowerCase()))];
+  if (!emails.length) return say('#import-msg', 'No email addresses found. Paste some or choose a file.', 'error');
+  const mode = $('#import-mode').value;
+  const how = mode === 'pending'
+    ? 'Each person will get one email asking them to confirm. Only people who click it will receive newsletters.'
+    : 'They will receive newsletters straight away, without confirming.';
+  if (!confirm('Import ' + emails.length + ' address' + (emails.length === 1 ? '' : 'es') + '?\n\n' + how)) return;
+  const btn = $('#import-go');
+  btn.disabled = true;
+  const total = { added: 0, skipped_existing: 0, invalid: 0, email_failed: 0 };
+  const CHUNK = 12;
+  try {
+    for (let i = 0; i < emails.length; i += CHUNK) {
+      say('#import-msg', 'Importing... ' + Math.min(i, emails.length) + ' of ' + emails.length);
+      const { data } = await adminApi('/api/admin/import', {
+        emails: emails.slice(i, i + CHUNK),
+        mode,
+        source: 'import',
+        consent: $('#import-consent').value.trim(),
+      });
+      if (!data.ok) {
+        say('#import-msg', 'Stopped at ' + i + ' of ' + emails.length + ': ' + (SEND_ERRORS[data.error] || 'something went wrong') +
+          ' So far: ' + total.added + ' added. Importing again is safe, people already added are skipped.', 'error');
+        return;
+      }
+      for (const k of Object.keys(total)) total[k] += data[k] || 0;
+    }
+    say('#import-msg', 'Done. Added ' + total.added + ', already on the list ' + total.skipped_existing + ', not valid ' + total.invalid +
+      (total.email_failed ? ', confirmation email failed for ' + total.email_failed : '') + '.', 'ok');
+    $('#import-list').value = '';
+    $('#import-file').value = '';
+  } catch {
+    say('#import-msg', 'Lost contact part way. Importing again is safe, people already added are skipped.', 'error');
+  } finally {
+    btn.disabled = false;
+  }
 });
 
 // ------------------------------------------------------------------ security
