@@ -1,6 +1,13 @@
 import Image from 'next/image';
 import Reveal from '@/components/Reveal';
 import { siteImage } from '@/lib/site-images';
+import { pageMeta } from '@/lib/seo';
+
+export const metadata = pageMeta(
+  "Our Story",
+  "Meet the brothers behind Biggs Bakes and how a love of thick, chunky NYC-style cookies became a British bakery.",
+  "/about",
+);
 
 function Founder({
   name,

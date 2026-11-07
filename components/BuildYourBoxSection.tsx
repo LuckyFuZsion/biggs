@@ -125,7 +125,7 @@ export default function BuildYourBoxSection({ flavours }: { flavours: Flavour[] 
                               <Image
                                 key={`${flavour.id}-${i}`}
                                 src={flavour.image}
-                                alt=""
+                                alt={flavour.name}
                                 width={200}
                                 height={200}
                                 className="slot-pop h-full w-full object-contain p-1"
@@ -226,7 +226,7 @@ export default function BuildYourBoxSection({ flavours }: { flavours: Flavour[] 
                       >
                         <Image
                           src={flavour.image}
-                          alt=""
+                          alt={flavour.name}
                           width={240}
                           height={240}
                           className="aspect-square w-full max-w-[140px] object-contain"

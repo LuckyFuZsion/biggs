@@ -1,4 +1,11 @@
 import Reveal from '@/components/Reveal';
+import { pageMeta } from '@/lib/seo';
+
+export const metadata = pageMeta(
+  "Terms & Conditions",
+  "The terms and conditions for ordering from Biggs Bakes, covering orders, delivery, returns and payments.",
+  "/terms",
+);
 
 type Block = { type: 'p'; text: string } | { type: 'ul'; items: string[] };
 type Section = { title: string; blocks: Block[] };

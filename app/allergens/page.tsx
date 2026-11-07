@@ -1,6 +1,13 @@
 import { getFlavours } from '@/lib/flavours';
 import Reveal from '@/components/Reveal';
 import { ALLERGEN_INFO, allergenKey } from '@/lib/allergen-info';
+import { pageMeta } from '@/lib/seo';
+
+export const metadata = pageMeta(
+  "Allergens & Ingredients",
+  "Full allergen and ingredient information for every Biggs Bakes cookie flavour, including what each contains and may contain.",
+  "/allergens",
+);
 
 /** Bolds every ALL-CAPS word (the allergens) in an ingredient list. */
 function boldAllergens(text: string) {

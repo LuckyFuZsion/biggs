@@ -42,7 +42,8 @@ const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
   metadataBase: siteUrl,
-  title: 'Biggs Bakes | Thick. Chunky. Unapologetic',
+  title: { default: 'Biggs Bakes | Thick. Chunky. Unapologetic', template: '%s | Biggs Bakes' },
+  alternates: { canonical: '/' },
   description:
     'Thick, gooey, NYC-inspired cookies baked fresh in the UK. Build your own box of 3 from six signature flavours.',
   authors: [{ name: 'WebFuZsion', url: 'https://webfuzsion.co.uk' }],
@@ -61,7 +62,7 @@ export const metadata: Metadata = {
     title: 'Biggs Bakes | Thick. Chunky. Unapologetic',
     description:
       'Thick, gooey, NYC-inspired cookies baked fresh in the UK. Build your own box of 3 from six signature flavours.',
-    url: siteUrl,
+    url: '/',
     siteName: 'Biggs Bakes',
     images: [
       {

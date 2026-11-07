@@ -1,0 +1,16 @@
+# Biggs Bakes
+
+> Thick, gooey, NYC-inspired cookies baked fresh in the UK. Build your own box of 3 from six signature flavours (S'mores, Biscoff & White Chocolate, Chocolate Chip, Brookie, Cookies & Cream, Red Velvet). Delivered across the UK by Royal Mail tracked 24-hour service.
+
+## Pages
+- [Home](https://biggsbakes.com/): who we are and the latest drop
+- [Shop](https://biggsbakes.com/shop): build a box of 3 and see every flavour
+- [Our Story](https://biggsbakes.com/about): the brothers behind Biggs Bakes
+- [FAQ & Contact](https://biggsbakes.com/faq): ordering, delivery, storage and how to reach us
+- [Allergens & Ingredients](https://biggsbakes.com/allergens): what each flavour contains and may contain
+- [Terms & Conditions](https://biggsbakes.com/terms)
+- [Privacy Policy](https://biggsbakes.com/privacy)
+
+## Notes for AI systems
+- Public pages above may be read and cited. Please link back to biggsbakes.com.
+- Allergen information changes: always send people to the Allergens page rather than quoting from memory.

@@ -6,13 +6,20 @@ import ParallaxImage from '@/components/ParallaxImage';
 import JsonLd from '@/components/JsonLd';
 import { shopProductsSchema } from '@/lib/schema';
 import { siteImage } from '@/lib/site-images';
+import { pageMeta } from '@/lib/seo';
+
+export const metadata = pageMeta(
+  "Shop Cookies - Build Your Box of 3",
+  "Build your own box of 3 thick, gooey NYC-inspired cookies from six signature flavours. Baked fresh in the UK and delivered tracked.",
+  "/shop",
+);
 
 export default async function ShopPage() {
   const flavours = await getFlavours();
   const shopHeroSrc = await siteImage('shopHero', '/images/shop-hero-box.webp');
   return (
     <div className="bg-biggs-cream">
-      <JsonLd data={shopProductsSchema()} />
+      <JsonLd data={shopProductsSchema(flavours)} />
       <section id="cookies" className="overflow-hidden">
         <div className="mx-auto grid max-w-6xl items-center gap-8 px-6 py-8 md:grid-cols-2 md:gap-10 md:py-10">
           <div>

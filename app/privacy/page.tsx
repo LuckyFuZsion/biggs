@@ -1,4 +1,11 @@
 import Reveal from '@/components/Reveal';
+import { pageMeta } from '@/lib/seo';
+
+export const metadata = pageMeta(
+  "Privacy Policy",
+  "How Biggs Bakes collects, uses and protects your personal data.",
+  "/privacy",
+);
 
 export default function PrivacyPage() {
   return (

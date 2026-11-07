@@ -1,4 +1,5 @@
 import { faqCategories, flavours, products, siteConfig } from './data';
+import type { Flavour } from './types';
 
 const SITE_URL = `https://${siteConfig.domain}`;
 
@@ -57,7 +58,10 @@ export function websiteSchema() {
   };
 }
 
-export function flavourProductSchema(flavour: (typeof flavours)[number]) {
+const IN_STOCK = 'https://schema.org/InStock';
+const OUT_OF_STOCK = 'https://schema.org/OutOfStock';
+
+export function flavourProductSchema(flavour: Flavour) {
   return {
     '@type': 'Product',
     '@id': `${SITE_URL}/shop#${flavour.slug}`,
@@ -75,13 +79,14 @@ export function flavourProductSchema(flavour: (typeof flavours)[number]) {
       url: `${SITE_URL}/shop`,
       priceCurrency: 'GBP',
       price: flavour.price.toFixed(2),
-      availability: 'https://schema.org/InStock',
+      availability: flavour.soldOut ? OUT_OF_STOCK : IN_STOCK,
       itemCondition: 'https://schema.org/NewCondition',
     },
   };
 }
 
-export function boxProductSchema() {
+/** `inStock` is false when every flavour is sold out (the box itself is not stock-tracked). */
+export function boxProductSchema(inStock = true) {
   const box = products[0];
   return {
     '@type': 'Product',
@@ -100,28 +105,30 @@ export function boxProductSchema() {
       url: `${SITE_URL}/shop#build-your-box`,
       priceCurrency: 'GBP',
       price: box.price.toFixed(2),
-      availability: 'https://schema.org/InStock',
+      availability: inStock ? IN_STOCK : OUT_OF_STOCK,
       itemCondition: 'https://schema.org/NewCondition',
     },
   };
 }
 
-export function shopProductsSchema() {
+/** Pass the live flavours (from getFlavours) so each product shows its real stock. */
+export function shopProductsSchema(liveFlavours: Flavour[] = flavours) {
+  const list = liveFlavours.filter((f) => f.inShop !== false);
   return {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     '@id': `${SITE_URL}/shop#products`,
     name: 'Biggs Bakes Cookies',
     itemListElement: [
-      ...flavours.map((flavour, index) => ({
+      ...list.map((flavour, index) => ({
         '@type': 'ListItem',
         position: index + 1,
         item: flavourProductSchema(flavour),
       })),
       {
         '@type': 'ListItem',
-        position: flavours.length + 1,
-        item: boxProductSchema(),
+        position: list.length + 1,
+        item: boxProductSchema(list.some((f) => !f.soldOut)),
       },
     ],
   };
