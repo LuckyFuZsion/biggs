@@ -33,7 +33,7 @@ function Founder({
       <Reveal variant={flip ? 'left' : 'right'} delay={100} className={flip ? 'md:order-1' : ''}>
         <div className="space-y-4 text-biggs-green/80">
           <div>
-            <h2 className="font-bold text-biggs-green">{name} - Founder</h2>
+            <h2 className="font-bold text-biggs-green">{name} - Co-Founder</h2>
             <p className="font-bold text-biggs-green">{role}</p>
           </div>
           {children}

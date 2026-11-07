@@ -11,6 +11,8 @@ import FirebaseAnalytics from '@/components/FirebaseAnalytics';
 import { siteGraphSchema } from '@/lib/schema';
 import { getSiteImages } from '@/lib/site-images';
 import { SiteImagesProvider } from '@/components/SiteImagesProvider';
+import AnnouncementBar from '@/components/AnnouncementBar';
+import { ANNOUNCEMENT } from '@/lib/announcement';
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -92,8 +94,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <SiteImagesProvider images={siteImages}>
         <CartProvider>
           <ScrollToTop />
+          <AnnouncementBar />
           <Header />
-          <main className="pt-[5.5rem] md:pt-24">{children}</main>
+          <main className={ANNOUNCEMENT ? 'pt-[7.75rem] md:pt-[8.25rem]' : 'pt-[5.5rem] md:pt-24'}>{children}</main>
           <Footer />
           <CartDrawer />
         </CartProvider>
