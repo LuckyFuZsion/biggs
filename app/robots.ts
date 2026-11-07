@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       { userAgent: '*', allow: '/', disallow: ['/admin', '/cart'] },
       // AI search and answer tools are welcome to read the public pages.
-      { userAgent: ['GPTBot', 'ChatGPT-User', 'OAI-SearchBot', 'PerplexityBot', 'ClaudeBot', 'Claude-Web', 'Google-Extended'], allow: '/', disallow: ['/admin', '/cart'] },
+      { userAgent: ['GPTBot', 'ChatGPT-User', 'OAI-SearchBot', 'PerplexityBot', 'ClaudeBot', 'Claude-Web', 'Google-Extended'], allow: '/' },
     ],
     sitemap: `${base}/sitemap.xml`,
     host: base,

@@ -170,7 +170,11 @@ export default async function Footer() {
         </div>
 
         <p className="nav-tracking mt-16 text-center text-[10px] font-medium uppercase text-biggs-yellow/70">
-          © {new Date().getFullYear()} Biggs Bakes. All rights reserved.
+          © <time dateTime={String(new Date().getFullYear())}>{new Date().getFullYear()}</time> Biggs Bakes. All rights reserved.
+        </p>
+
+        <p className="mx-auto mt-3 max-w-xl text-center text-[11px] font-medium leading-relaxed text-biggs-yellow/70">
+          Biggs Productions Limited, registered in England and Wales, company no. 16768990, 86-90 Paul Street, London EC2A 4NE
         </p>
 
         <a

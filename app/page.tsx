@@ -5,6 +5,7 @@ import MailingList from '@/components/MailingList';
 import JsonLd from '@/components/JsonLd';
 import { shopProductsSchema } from '@/lib/schema';
 import { getFlavours } from '@/lib/flavours';
+import HomeFaq from '@/components/HomeFaq';
 
 export default async function HomePage() {
   const flavours = await getFlavours();
@@ -14,6 +15,7 @@ export default async function HomePage() {
       <Hero />
       <FlavourGrid />
       <StorySection />
+      <HomeFaq />
       <MailingList />
     </>
   );

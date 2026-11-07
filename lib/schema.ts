@@ -134,29 +134,51 @@ export function shopProductsSchema(liveFlavours: Flavour[] = flavours) {
   };
 }
 
-export function faqPageSchema() {
-  const entities = faqCategories.flatMap((category) =>
-    category.items.map((item) => ({
+export function faqPageSchema(
+  onlyItems?: { question: string; answer: string }[],
+  idPath = '/faq#faq',
+) {
+  const source = onlyItems ?? faqCategories.flatMap((category) => category.items);
+  const entities = source.map((item) => ({
       '@type': 'Question',
       name: item.question,
       acceptedAnswer: {
         '@type': 'Answer',
         text: item.answer,
       },
-    }))
-  );
+  }));
 
   return {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    '@id': `${SITE_URL}/faq#faq`,
+    '@id': `${SITE_URL}${idPath}`,
     mainEntity: entities,
+  };
+}
+
+/** Last time the site content was meaningfully updated (a date signal for Google and AI tools). */
+export const SITE_UPDATED = '2026-11-07';
+
+function webPageSchema() {
+  return {
+    '@type': 'WebPage',
+    '@id': `${SITE_URL}/#webpage`,
+    url: SITE_URL,
+    name: 'Biggs Bakes | Thick. Chunky. Unapologetic',
+    isPartOf: { '@id': `${SITE_URL}/#website` },
+    inLanguage: 'en-GB',
+    datePublished: SITE_UPDATED,
+    dateModified: SITE_UPDATED,
+    speakable: {
+      '@type': 'SpeakableSpecification',
+      cssSelector: ['h1', '[data-speakable]'],
+    },
   };
 }
 
 export function siteGraphSchema() {
   return {
     '@context': 'https://schema.org',
-    '@graph': [organizationSchema(), websiteSchema()],
+    '@graph': [organizationSchema(), websiteSchema(), webPageSchema()],
   };
 }

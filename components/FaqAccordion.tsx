@@ -22,8 +22,10 @@ export default function FaqAccordion({ categories }: { categories: FaqCategory[]
                 const isOpen = openKey === key;
                 return (
                   <div key={key} className="overflow-hidden">
+                    <h3 className="m-0 text-base">
                     <button
                       onClick={() => setOpenKey(isOpen ? null : key)}
+                      aria-expanded={isOpen}
                       className="flex w-full items-center justify-between px-5 py-4 text-left font-semibold text-biggs-green transition hover:bg-biggs-green/5"
                     >
                       {item.question}
@@ -35,6 +37,7 @@ export default function FaqAccordion({ categories }: { categories: FaqCategory[]
                         +
                       </span>
                     </button>
+                    </h3>
                     <div
                       className={`grid transition-all duration-300 ease-out ${
                         isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'

@@ -15,8 +15,6 @@ const SUBSCRIBE_URL = process.env.NEXT_PUBLIC_SUBSCRIBE_URL;
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 const CONSENT =
   'By signing up you agree to receive emails from Biggs Bakes about\nnew drops & flavours. Unsubscribe at any time.';
-const COMPANY_LINE =
-  'Biggs Productions Limited, registered in England and Wales, company no. 16768990, 86-90 Paul Street, London EC2A 4NE';
 
 type TurnstileApi = {
   render: (el: HTMLElement, opts: Record<string, unknown>) => string;
@@ -203,10 +201,6 @@ export default function MailingList() {
             </div>
           </div>
         </div>
-
-        <p className="mt-5 text-center text-xs font-medium leading-relaxed text-biggs-green/65 md:mt-9">
-          {COMPANY_LINE}
-        </p>
       </Reveal>
     </section>
   );
