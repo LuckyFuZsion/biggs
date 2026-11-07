@@ -145,6 +145,7 @@ document.querySelectorAll('.tab').forEach((tab) => {
     for (const name of ['content', 'images', 'subscribers', 'send', 'security']) {
       $('#tab-' + name).hidden = tab.dataset.tab !== name;
     }
+    if (tab.dataset.tab === 'send') loadHistory();
   });
 });
 
@@ -531,6 +532,7 @@ $('#send-all').addEventListener('click', async () => {
     if (data.ok) {
       testedKey = null;
       say('#send-msg', 'Sent to ' + data.sent + ' subscriber' + (data.sent === 1 ? '' : 's') + '.', 'ok');
+      loadHistory();
     } else if (data.error === 'count_changed') {
       say('#send-msg', 'The list changed just now (it is now ' + data.count + ' people). Nothing was sent. Press send again to confirm the new number.', 'error');
     } else if (data.error === 'email_failed' && data.sent != null) {
@@ -544,6 +546,24 @@ $('#send-all').addEventListener('click', async () => {
     btn.disabled = false;
   }
 });
+
+// Sent history: the last real sends, read through the Worker (admin only).
+async function loadHistory() {
+  try {
+    const { data } = await adminApi('/api/admin/newsletter-history', {});
+    if (!data.ok) return say('#history-msg', 'Could not load the history.', 'error');
+    say('#history-msg', '');
+    const rows = (data.sends || []).map((s) => h('tr', null,
+      h('td', { 'data-label': 'Sent' }, s.sentAt ? new Date(s.sentAt).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' }) : ''),
+      h('td', { 'data-label': 'Subject' }, s.subject),
+      h('td', { 'data-label': 'By' }, s.sentBy),
+      h('td', { 'data-label': 'Went to' }, s.sent === s.recipients ? s.sent + ' people' : s.sent + ' of ' + s.recipients + ' people (stopped part way)')
+    ));
+    $('#history-rows').replaceChildren(...(rows.length ? rows : [h('tr', null, h('td', { colspan: 4 }, 'Nothing has been sent yet.'))]));
+  } catch {
+    say('#history-msg', 'Could not load the history.', 'error');
+  }
+}
 
 // Import
 const EMAIL_FINDER = /[A-Za-z0-9][A-Za-z0-9._%+'-]*@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/g;

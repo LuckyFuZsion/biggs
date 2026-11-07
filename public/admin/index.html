@@ -188,6 +188,22 @@
             <button id="send-all" class="primary" type="button">Send to all confirmed subscribers</button>
           </div>
           <p id="send-msg" class="notice" role="status" aria-live="polite"></p>
+
+        <h2>Sent history</h2>
+          <p class="muted small">
+            The last real sends (tests are not listed). For what happened to each email, such as delivered or
+            bounced, and who it went to, open Resend:
+            <a href="https://resend.com/emails" target="_blank" rel="noopener noreferrer">Open Resend, Emails</a>.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Sent</th><th>Subject</th><th>By</th><th>Went to</th></tr>
+              </thead>
+              <tbody id="history-rows"></tbody>
+            </table>
+          </div>
+          <p id="history-msg" class="notice" role="status" aria-live="polite"></p>
         </div>
 
         <div id="tab-security" class="panel narrow" hidden>
