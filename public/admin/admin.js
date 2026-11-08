@@ -490,10 +490,12 @@ function renderVisitors() {
     : '';
   $('#v-chart-title').textContent = title;
   const top = Math.max(1, ...series);
+  // each bar carries its own number on top (blank for zero; 1,200 is shown as 1.2k to save room)
+  const compact = (n) => (n >= 1000 ? (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace('.0', '') + 'k' : String(n));
   chart.replaceChildren(...series.map((n, i) => {
-    const bar = h('i', { title: labels[i] + ': ' + nf.format(n) });
+    const bar = h('i');
     bar.style.height = Math.max(2, Math.round((n / top) * 100)) + '%';
-    return bar;
+    return h('div', { class: 'vcol', title: labels[i] + ': ' + nf.format(n) }, n > 0 ? h('span', { class: 'vnum' }, compact(n)) : null, bar);
   }));
 
   barList($('#v-pages'), Object.entries(pages), (p) => (p === '/' ? 'Home (/)' : p));
