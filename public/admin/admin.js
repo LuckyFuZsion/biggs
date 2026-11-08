@@ -5,7 +5,7 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 import {
   getFirestore, doc, getDoc, setDoc, collection, query, orderBy, onSnapshot, deleteDoc, serverTimestamp,
-  getDocs, limit, documentId,
+  getDocs, where, documentId,
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 
 /* Everything user supplied (emails, saved text) is written with textContent or as an attribute
@@ -511,7 +511,8 @@ async function refreshLive() {
 async function loadVisitors() {
   say('#v-msg', 'Loading...');
   try {
-    const snap = await getDocs(query(collection(db, 'stats'), orderBy(documentId(), 'desc'), limit(40)));
+    // A range on the document id (the date) needs no special index, unlike sorting newest-first.
+    const snap = await getDocs(query(collection(db, 'stats'), where(documentId(), '>=', shiftDay(ukToday(), -45))));
     visitorDays = {};
     snap.forEach((d) => {
       try { visitorDays[d.id] = JSON.parse(d.data().json); } catch { /* skip a broken day */ }
@@ -519,7 +520,8 @@ async function loadVisitors() {
     say('#v-msg', '');
     renderVisitors();
     await refreshLive();
-  } catch {
+  } catch (err) {
+    console.error('Visitors: could not load', err);
     say('#v-msg', 'Could not load the visitor numbers.', 'error');
   }
 }
