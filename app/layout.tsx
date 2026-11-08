@@ -8,6 +8,7 @@ import { CartProvider } from '@/components/CartProvider';
 import ScrollToTop from '@/components/ScrollToTop';
 import JsonLd from '@/components/JsonLd';
 import FirebaseAnalytics from '@/components/FirebaseAnalytics';
+import VisitTracker from '@/components/VisitTracker';
 import { siteGraphSchema } from '@/lib/schema';
 import { getSiteImages } from '@/lib/site-images';
 import { SiteImagesProvider } from '@/components/SiteImagesProvider';
@@ -93,6 +94,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="font-sans font-semibold antialiased">
         <JsonLd data={siteGraphSchema()} />
         <FirebaseAnalytics />
+        <VisitTracker />
         <SiteImagesProvider images={siteImages}>
         <CartProvider>
           <ScrollToTop />

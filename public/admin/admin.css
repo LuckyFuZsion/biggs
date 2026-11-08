@@ -173,12 +173,12 @@ a {
 }
 
 .tab {
-  flex: 1 1 auto;
-  min-width: 0;
+  flex: 1 0 auto; /* never squash below the words: extra tabs scroll sideways instead of overlapping */
+  min-width: max-content;
   border: 0;
   background: transparent;
   color: var(--green);
-  padding: 0.7rem 0.4rem;
+  padding: 0.7rem 0.9rem;
   font-size: 0.8rem;
   white-space: nowrap;
 }
@@ -759,4 +759,72 @@ label.check input[type='checkbox'] {
   padding: 0;
   accent-color: var(--green, #243026);
   cursor: pointer;
+}
+
+/* ---------- visitors ---------- */
+.stats.four {
+  grid-template-columns: repeat(2, 1fr);
+}
+.vchart {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 9rem;
+  margin: 0.75rem 0 0.3rem;
+  padding: 0.5rem 0.5rem 0;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+}
+.vchart i {
+  flex: 1;
+  min-width: 2px;
+  border-radius: 3px 3px 0 0;
+  background: var(--yellow);
+}
+.vchart-axis {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+}
+.vlist {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+.vrow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.2rem 1rem;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  font-size: 0.9rem;
+}
+.vname {
+  overflow-wrap: anywhere;
+  font-weight: 600;
+}
+.vrow b {
+  color: var(--green);
+}
+.vbar {
+  grid-column: 1 / -1;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--cream);
+}
+.vfill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--yellow);
+}
+@media (min-width: 640px) {
+  .stats.four {
+    grid-template-columns: repeat(4, 1fr);
+    max-width: none;
+  }
 }

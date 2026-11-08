@@ -5,6 +5,7 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 import {
   getFirestore, doc, getDoc, setDoc, collection, query, orderBy, onSnapshot, deleteDoc, serverTimestamp,
+  getDocs, limit, documentId,
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 
 /* Everything user supplied (emails, saved text) is written with textContent or as an attribute
@@ -143,10 +144,11 @@ onAuthStateChanged(auth, async (user) => {
 document.querySelectorAll('.tab').forEach((tab) => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('is-active', t === tab));
-    for (const name of ['content', 'images', 'banner', 'subscribers', 'send', 'security']) {
+    for (const name of ['content', 'images', 'banner', 'visitors', 'subscribers', 'send', 'security']) {
       $('#tab-' + name).hidden = tab.dataset.tab !== name;
     }
     if (tab.dataset.tab === 'send') loadHistory();
+    if (tab.dataset.tab === 'visitors') { loadVisitors(); startVisitorsTimer(); } else stopVisitorsTimer();
   });
 });
 
@@ -408,6 +410,131 @@ $('#save-banner').addEventListener('click', async (e) => {
     btn.disabled = false;
   }
 });
+
+// ------------------------------------------------------------------ visitors (main website)
+// Past days are read once from Firestore when the tab opens (or on Refresh). While the tab is open,
+// only today's live totals are re-fetched (from the Worker, once a minute), so this stays tiny.
+let visitorDays = {};
+let visitorsTimer = null;
+const UK_DAY = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London' });
+const ukToday = () => UK_DAY.format(new Date());
+function shiftDay(key, delta) {
+  const d = new Date(key + 'T12:00:00Z');
+  d.setUTCDate(d.getUTCDate() + delta);
+  return d.toISOString().slice(0, 10);
+}
+const nf = new Intl.NumberFormat('en-GB');
+let regionNames = null;
+try { regionNames = new Intl.DisplayNames(['en-GB'], { type: 'region' }); } catch { /* older browsers show the code */ }
+
+function addInto(total, part) {
+  for (const [k, n] of Object.entries(part || {})) total[k] = (total[k] || 0) + n;
+}
+
+function barList(box, entries, label) {
+  const rows = entries.sort((a, b) => b[1] - a[1]).slice(0, 10);
+  const max = rows.length ? rows[0][1] : 1;
+  box.replaceChildren(...(rows.length ? rows.map(([name, n]) => {
+    const fill = h('div', { class: 'vfill' });
+    fill.style.width = Math.max(2, Math.round((n / max) * 100)) + '%';
+    return h('div', { class: 'vrow' }, h('span', { class: 'vname' }, label(name)), h('b', null, nf.format(n)), h('div', { class: 'vbar' }, fill));
+  }) : [h('p', { class: 'muted small' }, 'Nothing yet.')]));
+}
+
+function renderVisitors() {
+  const range = $('#v-range').value;
+  const today = ukToday();
+  let keys;
+  if (range === 'today') keys = [today];
+  else if (range === 'yesterday') keys = [shiftDay(today, -1)];
+  else {
+    const n = Number(range);
+    keys = Array.from({ length: n }, (_, i) => shiftDay(today, i - (n - 1)));
+  }
+  const days = keys.map((k) => visitorDays[k]).filter(Boolean);
+
+  let visitors = 0, views = 0, visits = 0;
+  const pages = {}, refs = {}, countries = {}, devices = {};
+  for (const d of days) {
+    visitors += d.visitors; views += d.views; visits += d.visits;
+    addInto(pages, d.pages); addInto(refs, d.refs); addInto(countries, d.countries); addInto(devices, d.devices);
+  }
+  $('#v-visitors').textContent = nf.format(visitors);
+  $('#v-views').textContent = nf.format(views);
+  $('#v-visits').textContent = nf.format(visits);
+
+  // chart: hours for one day, days for a longer range
+  const chart = $('#v-chart');
+  const axis = $('#v-chart-axis');
+  let series, labels, title;
+  if (keys.length === 1) {
+    const d = visitorDays[keys[0]];
+    series = d ? d.hours : Array(24).fill(0);
+    labels = series.map((_, i) => String(i).padStart(2, '0') + ':00');
+    title = 'Page views by hour';
+    axis.textContent = '00:00 \u2192 23:00 (UK time)';
+  } else {
+    series = keys.map((k) => (visitorDays[k] ? visitorDays[k].views : 0));
+    labels = keys.map((k) => new Date(k + 'T12:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' }));
+    title = 'Page views by day';
+    axis.textContent = labels[0] + ' \u2192 ' + labels[labels.length - 1];
+  }
+  $('#v-chart-title').textContent = title;
+  const top = Math.max(1, ...series);
+  chart.replaceChildren(...series.map((n, i) => {
+    const bar = h('i', { title: labels[i] + ': ' + nf.format(n) });
+    bar.style.height = Math.max(2, Math.round((n / top) * 100)) + '%';
+    return bar;
+  }));
+
+  barList($('#v-pages'), Object.entries(pages), (p) => (p === '/' ? 'Home (/)' : p));
+  barList($('#v-refs'), Object.entries(refs), (r) => (r === 'direct' ? 'Direct (typed or bookmarked)' : r));
+  barList($('#v-countries'), Object.entries(countries), (c) => (c === 'XX' ? 'Unknown' : c === 'other' ? 'Other' : regionNames ? regionNames.of(c) || c : c));
+  barList($('#v-devices'), Object.entries(devices).filter(([, n]) => n > 0), (d) => ({ mobile: 'Phone', tablet: 'Tablet', desktop: 'Computer' }[d] || d));
+
+  const first = Object.keys(visitorDays).sort()[0];
+  $('#v-since').textContent = first
+    ? 'Counting started on ' + new Date(first + 'T12:00:00Z').toLocaleDateString('en-GB', { dateStyle: 'long', timeZone: 'UTC' }) + '. Earlier days are not available.'
+    : 'No visits recorded yet. Counting starts as soon as the tracker is live on the website.';
+}
+
+async function refreshLive() {
+  try {
+    const { data } = await adminApi('/api/admin/live', {});
+    if (!data.ok) return;
+    visitorDays[data.today.day] = data.today;
+    $('#v-live').textContent = nf.format(data.now);
+    renderVisitors();
+  } catch { /* try again next minute */ }
+}
+
+async function loadVisitors() {
+  say('#v-msg', 'Loading...');
+  try {
+    const snap = await getDocs(query(collection(db, 'stats'), orderBy(documentId(), 'desc'), limit(40)));
+    visitorDays = {};
+    snap.forEach((d) => {
+      try { visitorDays[d.id] = JSON.parse(d.data().json); } catch { /* skip a broken day */ }
+    });
+    say('#v-msg', '');
+    renderVisitors();
+    await refreshLive();
+  } catch {
+    say('#v-msg', 'Could not load the visitor numbers.', 'error');
+  }
+}
+
+function startVisitorsTimer() {
+  stopVisitorsTimer();
+  visitorsTimer = setInterval(() => { if (!document.hidden) refreshLive(); }, 60000);
+}
+function stopVisitorsTimer() {
+  if (visitorsTimer) clearInterval(visitorsTimer);
+  visitorsTimer = null;
+}
+
+$('#v-range').addEventListener('change', renderVisitors);
+$('#v-refresh').addEventListener('click', loadVisitors);
 
 // ------------------------------------------------------------------ subscribers
 let subscribers = [];

@@ -162,6 +162,14 @@ export default function PrivacyPage() {
           similar tracking technologies after you accept them through our cookie banner, where consent is required.
         </li>
         <li>
+          <strong className="font-bold text-biggs-green">Anonymous visit counts:</strong> We keep simple anonymous totals of visits to our website, such
+          as how many people visited, which pages they viewed, which country they were in, whether they used a phone
+          or a computer, and which website sent them to us. This uses no cookies and does not store your IP address or
+          anything that identifies you. To avoid counting the same person twice in a day, a scrambled one-way code is
+          used for a single day and then deleted, and it cannot be turned back into your details. Our lawful basis is our
+          legitimate interests in understanding and improving our website. If your browser sends a &ldquo;Do Not Track&rdquo; signal, we do not count your visit.
+        </li>
+        <li>
           <strong className="font-bold text-biggs-green">Third Parties:</strong> Shopify and other service providers may set cookies or use similar
           technologies when you shop with us or proceed to checkout. These may be needed to support checkout, payment
           processing and website security. Any non-essential cookies that require consent should only be activated
