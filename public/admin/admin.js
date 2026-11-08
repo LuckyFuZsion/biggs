@@ -134,6 +134,7 @@ onAuthStateChanged(auth, async (user) => {
   resetIdle();
   startContent();
   startSiteImages();
+  startBanner();
   startSubscribers();
   refreshMfaStatus();
 });
@@ -142,7 +143,7 @@ onAuthStateChanged(auth, async (user) => {
 document.querySelectorAll('.tab').forEach((tab) => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('is-active', t === tab));
-    for (const name of ['content', 'images', 'subscribers', 'send', 'security']) {
+    for (const name of ['content', 'images', 'banner', 'subscribers', 'send', 'security']) {
       $('#tab-' + name).hidden = tab.dataset.tab !== name;
     }
     if (tab.dataset.tab === 'send') loadHistory();
@@ -359,6 +360,50 @@ $('#save-images').addEventListener('click', async (e) => {
     say('#images-msg', 'Saved. The website shows it within about a minute.', 'ok');
   } catch {
     say('#images-msg', 'Not saved. Please try again.', 'error');
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// ------------------------------------------------------------------ top banner (main website)
+function updateBannerPreview() {
+  const text = $('#banner-text').value.trim();
+  const on = $('#banner-on').checked;
+  const box = $('#banner-preview');
+  box.textContent = text || 'Your banner text appears here';
+  box.classList.toggle('is-off', !on);
+  $('#banner-count').textContent = $('#banner-text').value.length + '/120';
+}
+
+async function startBanner() {
+  try {
+    const snap = await getDoc(doc(db, 'site', 'banner'));
+    const saved = snap.exists() ? snap.data() : {};
+    $('#banner-on').checked = saved.enabled === true;
+    $('#banner-text').value = typeof saved.text === 'string' ? saved.text : '';
+  } catch {
+    say('#banner-msg', 'Could not load the banner.', 'error');
+  }
+  updateBannerPreview();
+}
+
+$('#banner-on').addEventListener('change', updateBannerPreview);
+$('#banner-text').addEventListener('input', updateBannerPreview);
+
+$('#save-banner').addEventListener('click', async (e) => {
+  const btn = e.currentTarget;
+  const text = $('#banner-text').value.replace(/\s+/g, ' ').trim();
+  const enabled = $('#banner-on').checked;
+  if (enabled && !text) return say('#banner-msg', 'Type the banner text first, or switch the banner off.', 'error');
+  btn.disabled = true;
+  say('#banner-msg', 'Saving...');
+  try {
+    await setDoc(doc(db, 'site', 'banner'), { enabled, text, updatedAt: serverTimestamp() });
+    say('#banner-msg', enabled
+      ? 'Saved. The banner shows on the website within about two minutes.'
+      : 'Saved. The banner is switched off and disappears from the website within about two minutes.', 'ok');
+  } catch {
+    say('#banner-msg', 'Not saved. Please try again.', 'error');
   } finally {
     btn.disabled = false;
   }

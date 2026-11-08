@@ -6,7 +6,6 @@ import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useCart } from './CartProvider';
 import { useSiteImage } from './SiteImagesProvider';
-import { ANNOUNCEMENT } from '@/lib/announcement';
 
 const NAV_LINKS = [
   { href: '/', label: 'Home', match: '/' },
@@ -15,7 +14,7 @@ const NAV_LINKS = [
   { href: '/faq', label: 'FAQ', match: '/faq' },
 ];
 
-export default function Header() {
+export default function Header({ hasBanner = false }: { hasBanner?: boolean }) {
   const { itemCount, openCart } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [elevated, setElevated] = useState(false);
@@ -38,7 +37,7 @@ export default function Header() {
 
   return (
     <header
-      className={`fixed inset-x-0 ${ANNOUNCEMENT ? 'top-9' : 'top-0'} z-30 bg-biggs-green/95 text-biggs-cream transition-shadow duration-300 ${
+      className={`fixed inset-x-0 ${hasBanner ? 'top-9' : 'top-0'} z-30 bg-biggs-green/95 text-biggs-cream transition-shadow duration-300 ${
         elevated ? 'header-elevated' : ''
       }`}
     >

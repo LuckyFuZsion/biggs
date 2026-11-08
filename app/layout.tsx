@@ -12,7 +12,7 @@ import { siteGraphSchema } from '@/lib/schema';
 import { getSiteImages } from '@/lib/site-images';
 import { SiteImagesProvider } from '@/components/SiteImagesProvider';
 import AnnouncementBar from '@/components/AnnouncementBar';
-import { ANNOUNCEMENT } from '@/lib/announcement';
+import { getBanner } from '@/lib/announcement';
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -87,6 +87,7 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const siteImages = await getSiteImages();
+  const banner = await getBanner();
   return (
     <html lang="en-GB" className={`${montserrat.variable} ${fraunces.variable}`}>
       <body className="font-sans font-semibold antialiased">
@@ -95,9 +96,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <SiteImagesProvider images={siteImages}>
         <CartProvider>
           <ScrollToTop />
-          <AnnouncementBar />
-          <Header />
-          <main className={ANNOUNCEMENT ? 'pt-[7.75rem] md:pt-[8.25rem]' : 'pt-[5.5rem] md:pt-24'}>{children}</main>
+          <AnnouncementBar text={banner} />
+          <Header hasBanner={Boolean(banner)} />
+          <main className={banner ? 'pt-[7.75rem] md:pt-[8.25rem]' : 'pt-[5.5rem] md:pt-24'}>{children}</main>
           <Footer />
           <CartDrawer />
         </CartProvider>
