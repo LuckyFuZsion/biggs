@@ -472,13 +472,22 @@ function renderVisitors() {
     series = d ? d.hours : Array(24).fill(0);
     labels = series.map((_, i) => String(i).padStart(2, '0') + ':00');
     title = 'Page views by hour';
-    axis.textContent = '00:00 \u2192 23:00 (UK time)';
+
   } else {
     series = keys.map((k) => (visitorDays[k] ? visitorDays[k].views : 0));
     labels = keys.map((k) => new Date(k + 'T12:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' }));
     title = 'Page views by day';
-    axis.textContent = labels[0] + ' \u2192 ' + labels[labels.length - 1];
+
   }
+  // axis: a label under every 3rd hour (or every day / every few days), lined up with the bars
+  const step = keys.length === 1 ? 3 : Math.ceil(keys.length / 7);
+  axis.replaceChildren(...series.map((_, i) => h('span', null, i % step === 0 ? (keys.length === 1 ? String(i).padStart(2, '0') : labels[i]) : '')));
+  const best = series.indexOf(Math.max(...series));
+  $('#v-peak').textContent = series[best] > 0
+    ? (keys.length === 1
+      ? 'Busiest hour: ' + labels[best] + ' to ' + String((best + 1) % 24).padStart(2, '0') + ':00 (UK time), ' + nf.format(series[best]) + ' page views. Hover or tap a bar for any hour.'
+      : 'Busiest day: ' + labels[best] + ', ' + nf.format(series[best]) + ' page views. Hover or tap a bar for any day.')
+    : '';
   $('#v-chart-title').textContent = title;
   const top = Math.max(1, ...series);
   chart.replaceChildren(...series.map((n, i) => {

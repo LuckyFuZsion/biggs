@@ -828,3 +828,22 @@ label.check input[type='checkbox'] {
     max-width: none;
   }
 }
+
+/* chart labels under the bars */
+.vchart-axis {
+  display: flex;
+  gap: 2px;
+  padding: 0 0.5rem;
+  text-align: center;
+}
+.vchart-axis span {
+  display: block;
+  flex: 1;
+  min-width: 2px;
+  overflow: visible;
+  font-size: 0.68rem;
+  white-space: nowrap;
+}
+#v-peak {
+  margin: 0.4rem 0 0;
+}
