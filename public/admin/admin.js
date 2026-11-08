@@ -415,6 +415,7 @@ $('#save-banner').addEventListener('click', async (e) => {
 // Past days are read once from Firestore when the tab opens (or on Refresh). While the tab is open,
 // only today's live totals are re-fetched (from the Worker, once a minute), so this stays tiny.
 let visitorDays = {};
+let visitorBackfill = {}; // hand-added estimates for hours before counting started, by day
 let visitorsTimer = null;
 const UK_DAY = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London' });
 const ukToday = () => UK_DAY.format(new Date());
@@ -451,7 +452,7 @@ function renderVisitors() {
     const n = Number(range);
     keys = Array.from({ length: n }, (_, i) => shiftDay(today, i - (n - 1)));
   }
-  const days = keys.map((k) => visitorDays[k]).filter(Boolean);
+  const days = keys.map(dayView).filter(Boolean);
 
   let visitors = 0, views = 0, visits = 0;
   const pages = {}, refs = {}, countries = {}, devices = {};
@@ -468,13 +469,13 @@ function renderVisitors() {
   const axis = $('#v-chart-axis');
   let series, labels, title;
   if (keys.length === 1) {
-    const d = visitorDays[keys[0]];
+    const d = dayView(keys[0]);
     series = d ? d.hours : Array(24).fill(0);
     labels = series.map((_, i) => String(i).padStart(2, '0') + ':00');
     title = 'Page views by hour';
 
   } else {
-    series = keys.map((k) => (visitorDays[k] ? visitorDays[k].views : 0));
+    series = keys.map((k) => (dayView(k) || { views: 0 }).views);
     labels = keys.map((k) => new Date(k + 'T12:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' }));
     title = 'Page views by day';
 
@@ -489,13 +490,16 @@ function renderVisitors() {
       : 'Busiest day: ' + labels[best] + ', ' + nf.format(series[best]) + ' page views. Hover or tap a bar for any day.')
     : '';
   $('#v-chart-title').textContent = title;
+  // hours (or days) that include estimates are drawn lighter and marked with ~
+  const estHoursOf = (k) => ((dayView(k) || {}).estHours || []);
+  const estAt = (i) => (keys.length === 1 ? estHoursOf(keys[0]).includes(i) : estHoursOf(keys[i]).length > 0);
   const top = Math.max(1, ...series);
   // each bar carries its own number on top (blank for zero; 1,200 is shown as 1.2k to save room)
   const compact = (n) => (n >= 1000 ? (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace('.0', '') + 'k' : String(n));
   chart.replaceChildren(...series.map((n, i) => {
-    const bar = h('i');
+    const bar = h('i', { class: estAt(i) ? 'est' : null });
     bar.style.height = Math.max(2, Math.round((n / top) * 100)) + '%';
-    return h('div', { class: 'vcol', title: labels[i] + ': ' + nf.format(n) }, n > 0 ? h('span', { class: 'vnum' }, compact(n)) : null, bar);
+    return h('div', { class: 'vcol', title: labels[i] + ': ' + nf.format(n) + (estAt(i) ? ' (estimated)' : '') }, n > 0 ? h('span', { class: 'vnum' }, (estAt(i) ? '~' : '') + compact(n)) : null, bar);
   }));
 
   barList($('#v-pages'), Object.entries(pages), (p) => (p === '/' ? 'Home (/)' : p));
@@ -503,10 +507,32 @@ function renderVisitors() {
   barList($('#v-countries'), Object.entries(countries), (c) => (c === 'XX' ? 'Unknown' : c === 'other' ? 'Other' : regionNames ? regionNames.of(c) || c : c));
   barList($('#v-devices'), Object.entries(devices).filter(([, n]) => n > 0), (d) => ({ mobile: 'Phone', tablet: 'Tablet', desktop: 'Computer' }[d] || d));
 
-  const first = Object.keys(visitorDays).sort()[0];
+  const notes = keys.map((k) => (visitorBackfill[k] || {}).note).filter(Boolean);
+  const estBox = $('#v-estimate');
+  estBox.textContent = notes.join(' ');
+  estBox.hidden = notes.length === 0;
+
+  const first = Object.keys({ ...visitorDays, ...visitorBackfill }).sort()[0];
   $('#v-since').textContent = first
     ? 'Counting started on ' + new Date(first + 'T12:00:00Z').toLocaleDateString('en-GB', { dateStyle: 'long', timeZone: 'UTC' }) + '. Earlier days are not available.'
     : 'No visits recorded yet. Counting starts as soon as the tracker is live on the website.';
+}
+
+/** A day's numbers: what the counter measured, plus any hand-added estimates for hours before it started. */
+function dayView(key) {
+  const d = visitorDays[key];
+  const b = visitorBackfill[key];
+  if (!b) return d || null;
+  const base = d || { day: key, views: 0, visits: 0, visitors: 0, hours: Array(24).fill(0), hv: Array(24).fill(0), pages: {}, refs: {}, utm: {}, countries: {}, devices: {} };
+  return {
+    ...base,
+    views: base.views + b.views,
+    visits: base.visits + b.visits,
+    visitors: base.visitors + b.visitors,
+    hours: base.hours.map((n, i) => n + (b.hours[i] || 0)),
+    hv: base.hv.map((n, i) => n + (b.hv[i] || 0)),
+    estHours: b.estHours || [],
+  };
 }
 
 async function refreshLive() {
@@ -525,8 +551,13 @@ async function loadVisitors() {
     // A range on the document id (the date) needs no special index, unlike sorting newest-first.
     const snap = await getDocs(query(collection(db, 'stats'), where(documentId(), '>=', shiftDay(ukToday(), -45))));
     visitorDays = {};
+    visitorBackfill = {};
     snap.forEach((d) => {
       try { visitorDays[d.id] = JSON.parse(d.data().json); } catch { /* skip a broken day */ }
+    });
+    const bsnap = await getDocs(query(collection(db, 'stats_backfill'), where(documentId(), '>=', shiftDay(ukToday(), -45))));
+    bsnap.forEach((d) => {
+      try { visitorBackfill[d.id] = JSON.parse(d.data().json); } catch { /* skip a broken record */ }
     });
     say('#v-msg', '');
     renderVisitors();
