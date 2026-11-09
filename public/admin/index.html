@@ -178,6 +178,10 @@
             </select>
             <input id="sub-search" type="search" placeholder="Search emails" maxlength="100" />
           </div>
+          <div class="toolbar tag-filter-row">
+            <label class="inline" for="sub-tag">Tag</label>
+            <select id="sub-tag"><option value="">Any tag</option></select>
+          </div>
 
           <div class="toolbar copy-row">
             <label class="inline" for="copy-sep">Copy as</label>
@@ -197,6 +201,22 @@
           </p>
           <p id="sub-msg" class="notice" role="status" aria-live="polite"></p>
 
+          <div class="pick-bar">
+            <p id="pick-count" class="pick-count" role="status" aria-live="polite">Tick people below to send them their own email.</p>
+            <div class="pick-buttons">
+              <button id="pick-shown" class="ghost" type="button">Tick everyone shown</button>
+              <button id="pick-clear" class="ghost" type="button">Clear ticks</button>
+              <button id="pick-email" class="primary" type="button" disabled>Write an email to ticked people</button>
+            </div>
+            <div class="tag-row">
+              <label class="inline" for="tag-name">Tag ticked people</label>
+              <input id="tag-name" list="tag-options" maxlength="30" placeholder="e.g. customer" autocomplete="off" />
+              <datalist id="tag-options"></datalist>
+              <button id="tag-add" class="ghost" type="button" disabled>Add tag</button>
+              <button id="tag-remove" class="ghost" type="button" disabled>Remove tag</button>
+            </div>
+          </div>
+
           <details class="import-box">
             <summary>Import a list of emails</summary>
             <p class="muted small">
@@ -211,7 +231,15 @@
             <select id="import-mode">
               <option value="pending">Ask them to confirm first (recommended)</option>
               <option value="confirmed">Add as already confirmed</option>
+              <option value="tag_only">Only tag people already on the list (do not add anyone new)</option>
             </select>
+            <label for="import-tag">Tag everyone in this file (optional)</label>
+            <input id="import-tag" maxlength="30" placeholder="e.g. customer" autocomplete="off" />
+            <p class="muted small">
+              With a tag, people already on the list keep exactly the status they have (subscribed, waiting or
+              unsubscribed) and just get the tag. Choose <strong>Only tag people already on the list</strong> for a
+              customer list: nobody new is added and nobody is emailed.
+            </p>
             <label for="import-consent">Where did these addresses come from? (saved with each person)</label>
             <input id="import-consent" maxlength="300" value="Signed up on the Biggs Bakes Opening soon page" />
             <div class="actions">
@@ -221,7 +249,7 @@
           </details>
 
           <div class="table-wrap">
-            <table>
+            <table class="subs">
               <thead>
                 <tr><th>Email</th><th>Status</th><th>Source</th><th>Signed up</th><th></th></tr>
               </thead>
@@ -234,9 +262,28 @@
           <h1>Send an email</h1>
           <p class="muted">
             Write a message and it goes to every <strong>confirmed</strong> subscriber, one email each, with their
-            own unsubscribe link and the company address added at the bottom. People who are waiting to confirm or
-            have unsubscribed never get it.
+            own unsubscribe link and the company address added at the bottom. To email only some people, tick them
+            on the Subscribers tab first. People who are waiting to confirm or have unsubscribed never get it.
           </p>
+          <label for="send-kind">Who is this for?</label>
+          <select id="send-kind">
+            <option value="newsletter">Subscribers: news and drops</option>
+            <option value="order">A customer about their order (they do not need to be subscribed)</option>
+          </select>
+          <div id="order-box" class="audience" hidden>
+            <p>
+              Order messages only. This can go to anyone, subscribed or not, so use it just for things about their
+              own order: confirmations, delays, swaps and tracking. Never for offers or news. It has no unsubscribe
+              link.
+            </p>
+            <label for="order-to">Email addresses (paste one or more, up to 25)</label>
+            <textarea id="order-to" rows="3" placeholder="customer@example.com"></textarea>
+            <p id="order-count" class="muted small"></p>
+          </div>
+          <div id="send-audience" class="audience" hidden>
+            <p id="send-audience-text"></p>
+            <button id="send-audience-clear" class="ghost" type="button">Send to everyone instead</button>
+          </div>
           <label for="send-subject">Subject</label>
           <input id="send-subject" maxlength="150" placeholder="The next drop is here" />
           <label for="send-message">Message</label>

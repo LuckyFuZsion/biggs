@@ -582,22 +582,60 @@ $('#v-refresh').addEventListener('click', loadVisitors);
 
 // ------------------------------------------------------------------ subscribers
 let subscribers = [];
+const picked = new Set(); // ids of people ticked for a hand-picked email (confirmed subscribers only)
+
+const pickedPeople = () => subscribers.filter((s) => s.status === 'confirmed' && picked.has(s.id));
+const plural = (n, one, many) => (n === 1 ? one : many);
 
 function startSubscribers() {
   if (stopSubscribers) stopSubscribers();
   const q = query(collection(db, 'subscribers'), orderBy('createdAt', 'desc'));
   stopSubscribers = onSnapshot(q, (snap) => {
     subscribers = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    // forget ticks for anyone deleted, unsubscribed or not confirmed any more
+    for (const id of [...picked]) if (!subscribers.some((s) => s.id === id && s.status === 'confirmed')) picked.delete(id);
     renderSubscribers();
   }, () => say('#sub-msg', 'Could not load subscribers.', 'error'));
 }
 
 const fmtDate = (ts) => (ts && ts.toDate ? ts.toDate().toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' }) : '');
 
+const tagsOf = (s) => (Array.isArray(s.tags) ? s.tags : []);
+const allTags = () => [...new Set(subscribers.flatMap(tagsOf))].sort();
+
 function visibleSubscribers() {
   const status = $('#sub-filter').value;
+  const tag = $('#sub-tag').value;
   const term = $('#sub-search').value.trim().toLowerCase();
-  return subscribers.filter((s) => (status === 'all' || s.status === status) && (!term || String(s.email).includes(term)));
+  return subscribers.filter((s) =>
+    (status === 'all' || s.status === status) &&
+    (!tag || (tag === '__none__' ? tagsOf(s).length === 0 : tagsOf(s).includes(tag))) &&
+    (!term || String(s.email).includes(term)));
+}
+
+// Keeps the Tag filter and the suggestion list in step with the tags that exist.
+function refreshTagLists() {
+  const tags = allTags();
+  const sel = $('#sub-tag');
+  const keep = tags.includes(sel.value) || sel.value === '__none__' ? sel.value : '';
+  sel.replaceChildren(
+    h('option', { value: '' }, 'Any tag'),
+    ...tags.map((t) => h('option', { value: t }, t)),
+    h('option', { value: '__none__' }, 'No tag')
+  );
+  sel.value = keep;
+  $('#tag-options').replaceChildren(...tags.map((t) => h('option', { value: t })));
+}
+
+// Add or remove one tag on a list of people, 20 at a time (the Worker checks the admin sign-in each time).
+async function changeTagFor(ids, change) {
+  const total = { changed: 0, unchanged: 0, missing: 0, full: 0, busy: 0 };
+  for (let i = 0; i < ids.length; i += 20) {
+    const { data } = await adminApi('/api/admin/tag', { ids: ids.slice(i, i + 20), ...change });
+    if (!data.ok) throw new Error(data.error || 'failed');
+    for (const k of Object.keys(total)) total[k] += data[k] || 0;
+  }
+  return total;
 }
 
 function renderSubscribers() {
@@ -608,13 +646,37 @@ function renderSubscribers() {
   );
   $('#copy-all').textContent = `Copy all confirmed emails (${count('confirmed')})`;
 
+  refreshTagLists();
+  // One compact line per person: tick, email, tags, status, (source and date on wide screens), delete.
   const rows = visibleSubscribers().map((s) => h('tr', null,
-    h('td', { 'data-label': 'Email' }, s.email),
+    h('td', { 'data-label': 'Email', class: 'who-cell' },
+      h('label', { class: 'check pick', title: s.email },
+        h('input', {
+          type: 'checkbox',
+          'aria-label': 'Tick ' + s.email,
+          title: s.status === 'confirmed' ? '' : 'Only confirmed subscribers can be emailed',
+          disabled: s.status !== 'confirmed',
+          checked: picked.has(s.id),
+          onchange: (e) => {
+            if (e.target.checked) picked.add(s.id); else picked.delete(s.id);
+            updatePick();
+          },
+        }),
+        h('span', { class: 'em' }, s.email)),
+      tagsOf(s).length
+        ? h('span', { class: 'tags', title: tagsOf(s).join(', ') }, tagsOf(s).map((t) => h('span', { class: 'tag-chip' }, t,
+            h('button', {
+              type: 'button', class: 'chip-x', 'aria-label': 'Remove tag ' + t + ' from ' + s.email, title: 'Remove this tag',
+              onclick: async () => {
+                try { await changeTagFor([s.id], { remove: t }); } catch { say('#sub-msg', 'Could not remove the tag.', 'error'); }
+              },
+            }, '×'))))
+        : null),
     h('td', { 'data-label': 'Status' }, h('span', { class: 'badge ' + s.status }, s.status === 'pending' ? 'waiting' : s.status)),
-    h('td', { 'data-label': 'Source' }, s.source || ''),
-    h('td', { 'data-label': 'Signed up' }, fmtDate(s.createdAt)),
+    h('td', { 'data-label': 'Source', class: 'wide-only' }, s.source || ''),
+    h('td', { 'data-label': 'Signed up', class: 'wide-only' }, fmtDate(s.createdAt)),
     h('td', null, h('button', {
-      class: 'danger', type: 'button',
+      class: 'danger', type: 'button', 'aria-label': 'Delete ' + s.email,
       onclick: async () => {
         if (!confirm(`Permanently delete ${s.email}? This cannot be undone.`)) return;
         try { await deleteDoc(doc(db, 'subscribers', s.id)); } catch { say('#sub-msg', 'Could not delete.', 'error'); }
@@ -622,9 +684,93 @@ function renderSubscribers() {
     }, 'Delete'))
   ));
   $('#sub-rows').replaceChildren(...(rows.length ? rows : [h('tr', null, h('td', { colspan: 5 }, 'Nothing to show yet.'))]));
+  updatePick();
 }
 
+// The "tick people" bar on the Subscribers tab, and the matching notice and button on the Send tab.
+function updatePick() {
+  const people = pickedPeople();
+  const n = people.length;
+  $('#pick-count').textContent = n
+    ? n + ' ' + plural(n, 'person', 'people') + ' ticked.'
+    : 'Tick people below to send them their own email.';
+  $('#pick-email').disabled = n === 0;
+  $('#pick-clear').disabled = n === 0;
+  $('#tag-add').disabled = n === 0;
+  $('#tag-remove').disabled = n === 0;
+  updateSendUi();
+}
+
+// The Send tab: which kind of message, who it goes to, and what the send button says.
+const orderAddresses = () => [...new Set(($('#order-to').value.match(EMAIL_FINDER) || []).map((x) => x.toLowerCase()))];
+
+function updateSendUi() {
+  const order = $('#send-kind').value === 'order';
+  const people = pickedPeople();
+  const n = people.length;
+  $('#order-box').hidden = !order;
+  $('#send-audience').hidden = order || n === 0;
+  if (!order && n) {
+    const names = people.slice(0, 5).map((p) => p.email).join(', ');
+    $('#send-audience-text').textContent =
+      'This email will go to ' + n + ' ticked ' + plural(n, 'person', 'people') + ' only: ' + names + (n > 5 ? ' and ' + (n - 5) + ' more.' : '.');
+  }
+  const addrs = orderAddresses();
+  $('#order-count').textContent = addrs.length
+    ? addrs.length + ' ' + plural(addrs.length, 'address', 'addresses') + ' found.'
+    : 'No addresses found yet.';
+  $('#send-all').textContent = order
+    ? (addrs.length ? 'Send to ' + addrs.length + ' ' + plural(addrs.length, 'customer', 'customers') + ' about their order' : 'Send order message')
+    : n
+      ? 'Send to ' + n + ' ticked ' + plural(n, 'person', 'people')
+      : 'Send to all confirmed subscribers';
+}
+$('#send-kind').addEventListener('change', updateSendUi);
+$('#order-to').addEventListener('input', updateSendUi);
+
+$('#tag-add').addEventListener('click', () => tagTicked('add'));
+$('#tag-remove').addEventListener('click', () => tagTicked('remove'));
+
+async function tagTicked(op) {
+  const people = pickedPeople();
+  const name = $('#tag-name').value.trim();
+  if (!people.length) return say('#sub-msg', 'Tick some people first.', 'error');
+  if (!name) return say('#sub-msg', 'Type a tag name first, for example customer.', 'error');
+  const btn = $(op === 'add' ? '#tag-add' : '#tag-remove');
+  btn.disabled = true;
+  say('#sub-msg', op === 'add' ? 'Adding the tag...' : 'Removing the tag...');
+  try {
+    const r = await changeTagFor(people.map((p) => p.id), { [op]: name });
+    const shown = name.toLowerCase();
+    say('#sub-msg', op === 'add'
+      ? 'Tagged ' + r.changed + ' ' + plural(r.changed, 'person', 'people') + ' as "' + shown + '"' +
+        (r.unchanged ? ' (' + r.unchanged + ' already had it)' : '') + (r.full ? '. ' + r.full + ' already have the most tags allowed' : '') + '.'
+      : 'Removed "' + shown + '" from ' + r.changed + ' ' + plural(r.changed, 'person', 'people') + (r.unchanged ? ' (' + r.unchanged + ' did not have it)' : '') + '.',
+    'ok');
+  } catch {
+    say('#sub-msg', 'Something went wrong with the tags. Check the list and try again.', 'error');
+  } finally {
+    updatePick();
+  }
+}
+
+$('#pick-shown').addEventListener('click', () => {
+  const shown = visibleSubscribers().filter((s) => s.status === 'confirmed');
+  if (!shown.length) return say('#sub-msg', 'No confirmed subscribers are showing. Change "Show" to Confirmed first.', 'error');
+  for (const s of shown) picked.add(s.id);
+  say('#sub-msg', '');
+  renderSubscribers();
+});
+$('#pick-clear').addEventListener('click', () => { picked.clear(); renderSubscribers(); });
+$('#pick-email').addEventListener('click', () => {
+  if (!pickedPeople().length) return;
+  document.querySelector('.tab[data-tab="send"]').click();
+  $('#send-subject').focus();
+});
+$('#send-audience-clear').addEventListener('click', () => { picked.clear(); renderSubscribers(); });
+
 $('#sub-filter').addEventListener('change', renderSubscribers);
+$('#sub-tag').addEventListener('change', renderSubscribers);
 $('#sub-search').addEventListener('input', renderSubscribers);
 
 async function copyText(text) {
@@ -658,10 +804,10 @@ function csvCell(value) {
 }
 
 $('#download-csv').addEventListener('click', () => {
-  const rows = [['email', 'status', 'source', 'signed_up', 'confirmed', 'unsubscribe_link']];
+  const rows = [['email', 'status', 'tags', 'source', 'signed_up', 'confirmed', 'unsubscribe_link']];
   for (const s of visibleSubscribers()) {
     const link = s.unsubSig ? `${location.origin}/unsubscribe.html?id=${s.id}&s=${s.unsubSig}` : '';
-    rows.push([s.email, s.status, s.source, fmtDate(s.createdAt), fmtDate(s.confirmedAt), link]);
+    rows.push([s.email, s.status, tagsOf(s).join(', '), s.source, fmtDate(s.createdAt), fmtDate(s.confirmedAt), link]);
   }
   const blob = new Blob([rows.map((r) => r.map(csvCell).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
   const a = h('a', { href: URL.createObjectURL(blob), download: `biggs-subscribers-${new Date().toISOString().slice(0, 10)}.csv` });
@@ -689,8 +835,9 @@ const sendFields = () => ({
   message: $('#send-message').value.trim(),
   buttonLabel: $('#send-button-label').value.trim(),
   buttonUrl: $('#send-button-url').value.trim(),
+  kind: $('#send-kind').value === 'order' ? 'order' : 'newsletter',
 });
-const sendKey = (f) => JSON.stringify([f.subject, f.message, f.buttonLabel, f.buttonUrl]);
+const sendKey = (f) => JSON.stringify([f.subject, f.message, f.buttonLabel, f.buttonUrl, f.kind]);
 let testedKey = null;
 
 function sendProblem(f) {
@@ -704,7 +851,11 @@ function sendProblem(f) {
 const SEND_ERRORS = {
   rate_limited: 'You have sent too many in the last hour. Please wait a little while.',
   not_admin: 'Your sign-in has expired. Please sign out and in again.',
-  no_recipients: 'There are no confirmed subscribers to send to yet.',
+  no_recipients: 'There is nobody to send to (no confirmed subscribers, or the ticked people have since unsubscribed). Nothing was sent.',
+  bad_recipients: 'Something was wrong with the list of people. Check it and try again.',
+  invalid_addresses: 'One or more email addresses are not valid. Nothing was sent.',
+  bad_tag: 'That tag is not valid. Use letters, numbers and spaces, up to 30 characters.',
+  tag_required: 'Type the tag to give these people first.',
   too_many: 'The list is larger than one send allows. Ask your web developer.',
   bad_button: 'For a button, add both the text and a link that starts with https://',
   email_failed: 'The email service refused it. Nothing more was sent.',
@@ -721,7 +872,7 @@ $('#send-test').addEventListener('click', async () => {
     const { data } = await adminApi('/api/admin/newsletter', { ...f, mode: 'test' });
     if (data.ok) {
       testedKey = sendKey(f);
-      say('#send-msg', 'Test sent to ' + data.sentTo + '. Check your inbox and junk folder. If it looks right, you can send it to everyone.', 'ok');
+      say('#send-msg', 'Test sent to ' + data.sentTo + '. Check your inbox and junk folder. If it looks right, you can send it.', 'ok');
     } else {
       say('#send-msg', SEND_ERRORS[data.error] || 'The test could not be sent. Please try again.', 'error');
     }
@@ -737,20 +888,38 @@ $('#send-all').addEventListener('click', async () => {
   const problem = sendProblem(f);
   if (problem) return say('#send-msg', problem, 'error');
   if (testedKey !== sendKey(f)) return say('#send-msg', 'Please press "Send me a test" for this exact message first, and check it.', 'error');
-  const count = subscribers.filter((s) => s.status === 'confirmed').length;
+  const order = f.kind === 'order';
+  const addrs = order ? orderAddresses() : [];
+  const chosen = order ? [] : pickedPeople();
+  const count = order ? addrs.length : chosen.length || subscribers.filter((s) => s.status === 'confirmed').length;
+  if (order && !count) return say('#send-msg', 'Add at least one email address for the order message.', 'error');
+  if (order && count > 25) return say('#send-msg', 'An order message can go to 25 people at most. Remove some addresses.', 'error');
   if (!count) return say('#send-msg', 'There are no confirmed subscribers to send to yet.', 'error');
-  if (!confirm('Send "' + f.subject + '" to ' + count + ' confirmed subscriber' + (count === 1 ? '' : 's') + '?\n\nThis cannot be undone.')) return;
+  const who = order
+    ? count + ' ' + plural(count, 'customer', 'customers') + ', whether or not they are subscribed.\n\nThis is for messages about their own order only, not offers or news'
+    : chosen.length
+      ? count + ' ticked ' + plural(count, 'person', 'people') + ' (not everyone)'
+      : count + ' confirmed subscriber' + (count === 1 ? '' : 's');
+  if (!confirm('Send "' + f.subject + '" to ' + who + '?\n\nThis cannot be undone.')) return;
   const btn = $('#send-all');
   btn.disabled = true;
   say('#send-msg', 'Sending... please keep this page open.');
   try {
-    const { data } = await adminApi('/api/admin/newsletter', { ...f, mode: 'send', expected: count });
+    const payload = { ...f, mode: 'send', expected: count };
+    if (order) payload.to = addrs;
+    else if (chosen.length) payload.ids = chosen.map((p) => p.id);
+    const { data } = await adminApi('/api/admin/newsletter', payload);
     if (data.ok) {
       testedKey = null;
-      say('#send-msg', 'Sent to ' + data.sent + ' subscriber' + (data.sent === 1 ? '' : 's') + '.', 'ok');
+      if (order) $('#order-to').value = ''; // so the same customers are not messaged twice by accident
+      else if (chosen.length) { picked.clear(); }
+      renderSubscribers(); updateSendUi();
+      say('#send-msg', 'Sent to ' + data.sent + ' ' + plural(data.sent, 'person', 'people') + '.', 'ok');
       loadHistory();
     } else if (data.error === 'count_changed') {
       say('#send-msg', 'The list changed just now (it is now ' + data.count + ' people). Nothing was sent. Press send again to confirm the new number.', 'error');
+    } else if (data.error === 'invalid_addresses') {
+      say('#send-msg', 'These do not look like valid email addresses, so nothing was sent: ' + (data.invalid || []).join(', '), 'error');
     } else if (data.error === 'email_failed' && data.sent != null) {
       say('#send-msg', 'Stopped part way: ' + data.sent + ' of ' + data.total + ' were sent. Do not press send again. Ask your web developer.', 'error');
     } else {
@@ -773,7 +942,7 @@ async function loadHistory() {
       h('td', { 'data-label': 'Sent' }, s.sentAt ? new Date(s.sentAt).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' }) : ''),
       h('td', { 'data-label': 'Subject' }, s.subject),
       h('td', { 'data-label': 'By' }, s.sentBy),
-      h('td', { 'data-label': 'Went to' }, s.sent === s.recipients ? s.sent + ' people' : s.sent + ' of ' + s.recipients + ' people (stopped part way)')
+      h('td', { 'data-label': 'Went to' }, (s.sent === s.recipients ? s.sent + ' people' : s.sent + ' of ' + s.recipients + ' people (stopped part way)') + (s.audience === 'selected' ? ', hand-picked' : s.audience === 'order' ? ', order message' : ''))
     ));
     $('#history-rows').replaceChildren(...(rows.length ? rows : [h('tr', null, h('td', { colspan: 4 }, 'Nothing has been sent yet.'))]));
   } catch {
@@ -797,32 +966,51 @@ $('#import-go').addEventListener('click', async () => {
   const emails = [...new Set(($('#import-list').value.match(EMAIL_FINDER) || []).map((x) => x.toLowerCase()))];
   if (!emails.length) return say('#import-msg', 'No email addresses found. Paste some or choose a file.', 'error');
   const mode = $('#import-mode').value;
-  const how = mode === 'pending'
-    ? 'Each person will get one email asking them to confirm. Only people who click it will receive newsletters.'
-    : 'They will receive newsletters straight away, without confirming.';
-  if (!confirm('Import ' + emails.length + ' address' + (emails.length === 1 ? '' : 'es') + '?\n\n' + how)) return;
+  const tag = $('#import-tag').value.trim();
+  if (mode === 'tag_only' && !tag) return say('#import-msg', 'Type the tag to give these people first, for example customer.', 'error');
+  const n = emails.length + ' address' + (emails.length === 1 ? '' : 'es');
+  const keep = tag ? '\n\nAnyone already on the list keeps exactly the status they have and just gets the tag "' + tag.toLowerCase() + '".' : '';
+  const how = mode === 'tag_only'
+    ? 'Only people already on your list will be tagged "' + tag.toLowerCase() + '". Their status stays exactly as it is. Nobody new is added and nobody is emailed.'
+    : (mode === 'pending'
+      ? 'Each new person will get one email asking them to confirm. Only people who click it will receive newsletters.'
+      : 'New people will receive newsletters straight away, without confirming.') + keep;
+  if (!confirm((mode === 'tag_only' ? 'Tag ' : 'Import ') + n + '?\n\n' + how)) return;
   const btn = $('#import-go');
   btn.disabled = true;
-  const total = { added: 0, skipped_existing: 0, invalid: 0, email_failed: 0 };
+  const total = { added: 0, skipped_existing: 0, invalid: 0, email_failed: 0, tagged_existing: 0, already_tagged: 0, not_on_list: 0, tag_full: 0 };
   const CHUNK = 12;
   try {
     for (let i = 0; i < emails.length; i += CHUNK) {
-      say('#import-msg', 'Importing... ' + Math.min(i, emails.length) + ' of ' + emails.length);
+      say('#import-msg', (mode === 'tag_only' ? 'Tagging... ' : 'Importing... ') + Math.min(i, emails.length) + ' of ' + emails.length);
       const { data } = await adminApi('/api/admin/import', {
         emails: emails.slice(i, i + CHUNK),
         mode,
+        tag: tag || undefined,
         source: 'import',
         consent: $('#import-consent').value.trim(),
       });
       if (!data.ok) {
         say('#import-msg', 'Stopped at ' + i + ' of ' + emails.length + ': ' + (SEND_ERRORS[data.error] || 'something went wrong') +
-          ' So far: ' + total.added + ' added. Importing again is safe, people already added are skipped.', 'error');
+          ' So far: ' + total.added + ' added, ' + total.tagged_existing + ' tagged. Running it again is safe: people already done are skipped.', 'error');
         return;
       }
       for (const k of Object.keys(total)) total[k] += data[k] || 0;
     }
-    say('#import-msg', 'Done. Added ' + total.added + ', already on the list ' + total.skipped_existing + ', not valid ' + total.invalid +
-      (total.email_failed ? ', confirmation email failed for ' + total.email_failed : '') + '.', 'ok');
+    const parts = [];
+    if (mode !== 'tag_only') parts.push('added ' + total.added);
+    if (tag) {
+      parts.push('tagged ' + total.tagged_existing + ' already on the list');
+      if (total.already_tagged) parts.push(total.already_tagged + ' already had the tag');
+      if (total.tag_full) parts.push(total.tag_full + ' not tagged (already have the most tags allowed)');
+    } else {
+      parts.push('already on the list ' + total.skipped_existing);
+    }
+    if (total.not_on_list) parts.push(total.not_on_list + ' not on the list so left alone');
+    parts.push('not valid ' + total.invalid);
+    if (total.email_failed) parts.push('confirmation email failed for ' + total.email_failed);
+    const summary = parts.join(', ');
+    say('#import-msg', 'Done. ' + summary.charAt(0).toUpperCase() + summary.slice(1) + '.', 'ok');
     $('#import-list').value = '';
     $('#import-file').value = '';
   } catch {

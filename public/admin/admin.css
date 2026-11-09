@@ -897,3 +897,265 @@ label.check input[type='checkbox'] {
   border-radius: 12px;
   background: var(--cream);
 }
+
+/* ---------- hand-picked emails ---------- */
+.pick-bar {
+  margin: 1rem 0;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--cream);
+}
+.pick-count {
+  margin: 0 0 0.6rem;
+  font-weight: 700;
+}
+.pick-buttons {
+  display: grid;
+  gap: 0.6rem;
+}
+.pick-buttons button {
+  width: 100%;
+}
+.pick-buttons button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+label.check.pick {
+  font-weight: 700;
+}
+label.check.pick input[type='checkbox']:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.audience {
+  margin: 1rem 0;
+  padding: 0.8rem 0.9rem;
+  border: 2px solid var(--gold, #d7a535);
+  border-radius: 14px;
+  background: var(--cream);
+}
+.audience[hidden] {
+  display: none;
+}
+.audience p {
+  margin: 0 0 0.6rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+@media (min-width: 700px) {
+  .pick-buttons {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .pick-buttons button {
+    width: auto;
+  }
+}
+
+/* ---------- compact subscriber list: one line per person ---------- */
+table.subs thead {
+  display: none;
+}
+table.subs tbody {
+  display: block;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+}
+table.subs tr {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0.3rem 0.7rem;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+}
+table.subs tr:last-child {
+  border-bottom: 0;
+}
+table.subs td {
+  display: block;
+  flex: none;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  font-weight: 400;
+  text-align: left;
+}
+table.subs td::before {
+  content: none;
+}
+table.subs td.who-cell {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+}
+table.subs td:last-child {
+  padding-top: 0;
+}
+table.subs td.wide-only {
+  display: none;
+  color: var(--muted);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+table.subs label.check.pick {
+  flex: 0 1 auto;
+  min-width: 0;
+  gap: 0.5rem;
+}
+table.subs label.check.pick input[type='checkbox'] {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+table.subs .em {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.85rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+table.subs .badge {
+  padding: 0.05rem 0.55rem;
+  font-size: 0.7rem;
+}
+table.subs button.danger {
+  min-height: 0;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.72rem;
+}
+.tags {
+  display: flex;
+  flex: 0 100 auto;
+  gap: 0.3rem;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.tag-chip {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0 0.2rem 0 0.5rem;
+  border-radius: 999px;
+  background: #e9e3f6;
+  color: #43307a;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+.chip-x {
+  width: 1.1rem;
+  height: 1.1rem;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  font-size: 0.85rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.chip-x:hover {
+  background: rgba(67, 48, 122, 0.18);
+}
+.tag-row {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.7rem;
+}
+.tag-row label.inline {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.tag-row button {
+  width: 100%;
+}
+.tag-row button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.tag-filter-row {
+  margin-top: 0;
+}
+@media (min-width: 700px) {
+  table.subs td.wide-only {
+    display: block;
+  }
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .tag-row input {
+    width: 14rem;
+  }
+  .tag-row button {
+    width: auto;
+  }
+  .tag-filter-row {
+    grid-template-columns: auto minmax(0, 16rem);
+    justify-content: start;
+  }
+}
+
+/* the email text may shrink so the status and delete button always stay on screen */
+table.subs td.who-cell { overflow: hidden; }
+table.subs td:not(.who-cell) { flex: none; }
+
+/* ---------- phone: show every tab at once (no sideways scrolling to find them) ---------- */
+@media (max-width: 699px) {
+  .tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.3rem;
+    overflow: visible;
+    border-radius: 22px;
+  }
+  .tab {
+    min-width: 0;
+    padding: 0.65rem 0.3rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    text-align: center;
+    white-space: normal;
+  }
+}
+
+/* the table must never be wider than its card, however long an email is */
+table.subs {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* phone: the delete button is a small cross so more of the email shows */
+@media (max-width: 699px) {
+  table.subs button.danger {
+    font-size: 0;
+    padding: 0.1rem 0.5rem;
+  }
+  table.subs button.danger::after {
+    content: '\2715';
+    font-size: 0.8rem;
+  }
+  table.subs .badge {
+    padding: 0.05rem 0.45rem;
+    font-size: 0.64rem;
+  }
+}
+
+/* phone: tag chips are left out of the one-line rows (use the Tag filter); they show on wider screens */
+@media (max-width: 699px) {
+  .tags {
+    display: none;
+  }
+}
