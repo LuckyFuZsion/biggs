@@ -162,13 +162,14 @@ function normalise(text: string) {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, ' ');
 }
 
-/** Live check: map of Shopify product handle -> true for products that are sold out. */
+/**
+ * Live check: map of Shopify product handle -> true when sold out, false when in stock. A handle that is
+ * missing from the map is not listed by Shopify at all, which the box builder treats as unavailable.
+ */
 export async function fetchSoldOutHandles(): Promise<Record<string, boolean>> {
   const products = await fetchProducts();
   const soldOut: Record<string, boolean> = {};
-  for (const p of products) {
-    if (!p.availableForSale) soldOut[p.handle] = true;
-  }
+  for (const p of products) soldOut[p.handle] = !p.availableForSale;
   return soldOut;
 }
 
@@ -202,21 +203,36 @@ export async function createCheckout(
 
   for (const item of items) {
     const p = item.properties ?? {};
-    const attributes = [
-      p.flavour1 && { key: 'Cookie 1', value: p.flavour1 },
-      p.flavour2 && { key: 'Cookie 2', value: p.flavour2 },
-      p.flavour3 && { key: 'Cookie 3', value: p.flavour3 },
-    ].filter(Boolean) as { key: string; value: string }[];
+    const slots = [
+      { name: p.flavour1, handle: p.handle1 },
+      { name: p.flavour2, handle: p.handle2 },
+      { name: p.flavour3, handle: p.handle3 },
+    ];
+    // The cart lives in the customer's browser, so nothing in it is trusted. Every cookie in the box must be a
+    // flavour that Shopify lists right now and has in stock, otherwise checkout stops. (Previously a flavour that
+    // Shopify did not list was skipped without a word, which let unavailable cookies be bought.)
+    if (slots.some((s) => !s.name)) {
+      throw new CheckoutError('Your box needs three cookies. Please rebuild it and try again.');
+    }
+    const verified = slots.map((s) => {
+      const byHandle = s.handle ? products.find((x) => x.handle === s.handle) : undefined;
+      const wantedId = matchFlavourId(s.name as string);
+      const flavour = byHandle ?? (wantedId ? products.find((x) => matchFlavourId(x.title) === wantedId) : undefined);
+      if (!flavour || !flavour.availableForSale) {
+        throw new CheckoutError(`Sorry, ${s.name} is sold out. Please change a flavour and try again.`);
+      }
+      return flavour;
+    });
+
+    // Cookie 1/2/3 on the order come from Shopify's own product names, not from what the browser sent.
+    const attributes = verified.map((flavour, i) => ({ key: `Cookie ${i + 1}`, value: flavour.title }));
     lines.push({ merchandiseId: variantId, quantity: item.quantity, attributes });
 
-    for (const handle of [p.handle1, p.handle2, p.handle3]) {
-      if (!handle) continue;
-      const flavour = products.find((x) => x.handle === handle);
-      const variant = flavour?.variants.nodes[0];
+    for (const flavour of verified) {
+      const variant = flavour.variants.nodes[0];
       const id = variant?.id;
-      // Flavour not found, or not priced at GBP 0 yet: skip its line so the customer is never charged for it.
-      // The box still goes through with its Cookie 1/2/3 notes.
-      if (!flavour || !id || Number(variant?.price.amount) !== 0) continue;
+      // Not priced at GBP 0: skip its stock line so the customer is never charged for it.
+      if (!id || Number(variant?.price.amount) !== 0) continue;
       flavourQty.set(id, (flavourQty.get(id) ?? 0) + item.quantity);
       names.set(id, flavour.title);
     }

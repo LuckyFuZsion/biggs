@@ -27,8 +27,9 @@ export default function BuildYourBoxSection({ flavours }: { flavours: Flavour[] 
     fetchSoldOutHandles().then(setSoldOut).catch(() => {});
   }, []);
 
+  // Once Shopify has answered, only a flavour it lists and has in stock can be picked.
   const isSoldOut = (f: Flavour) =>
-    soldOut && f.shopifyHandle ? Boolean(soldOut[f.shopifyHandle]) : Boolean(f.soldOut);
+    soldOut ? !f.shopifyHandle || soldOut[f.shopifyHandle] !== false : Boolean(f.soldOut);
   const boxFlavours = flavours.filter((f) => f.inBox !== false);
   const byId = (id: string) => flavours.find((f) => f.id === id);
 

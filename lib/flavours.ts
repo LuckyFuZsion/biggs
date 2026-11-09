@@ -40,7 +40,8 @@ async function loadFlavours(): Promise<Flavour[]> {
       console.log('[flavours] nothing tagged shop/box: using the original six');
       return staticFlavours.map((base) => {
         const product = products.find((p) => matchFlavourId(p.title) === base.id);
-        return product ? fromProduct(product, base, true, true) : base;
+        // A flavour Shopify does not list is not for sale: show it as sold out, never as available.
+        return product ? fromProduct(product, base, true, true) : { ...base, soldOut: true };
       });
     }
 
