@@ -1,7 +1,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import {
   getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail,
-  getMultiFactorResolver, multiFactor, TotpMultiFactorGenerator,
+  getMultiFactorResolver, multiFactor, TotpMultiFactorGenerator, GoogleAuthProvider, signInWithPopup,
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 import {
   getFirestore, doc, getDoc, setDoc, collection, query, orderBy, onSnapshot, deleteDoc, serverTimestamp,
@@ -77,6 +77,38 @@ $('#login-form').addEventListener('submit', async (e) => {
   } finally {
     btn.disabled = false;
     $('#login-password').value = '';
+  }
+});
+
+// Google sign-in. Google asks for its own 2-Step Verification, so a stolen password alone is not enough. The
+// admin still has to hold the admin permission (checked below and again by the Worker), so a random Google
+// account that signs in here is turned away.
+$('#google-signin').addEventListener('click', async () => {
+  const btn = $('#google-signin');
+  btn.disabled = true;
+  say('#login-msg', '');
+  try {
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    await signInWithPopup(auth, provider);
+  } catch (err) {
+    if (err.code === 'auth/multi-factor-auth-required') {
+      mfaResolver = getMultiFactorResolver(auth, err);
+      show('mfa');
+      $('#mfa-code').focus();
+    } else if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
+      say('#login-msg', 'Google sign-in was cancelled.', 'error');
+    } else if (err.code === 'auth/popup-blocked') {
+      say('#login-msg', 'Your browser blocked the Google window. Allow pop-ups for this site and try again.', 'error');
+    } else if (err.code === 'auth/account-exists-with-different-credential') {
+      say('#login-msg', 'That email already has an account with a different sign-in method. Sign in with your password once, then ask your web developer to link Google.', 'error');
+    } else if (err.code === 'auth/unauthorized-domain' || err.code === 'auth/operation-not-allowed') {
+      say('#login-msg', 'Google sign-in is not switched on for this address yet. Ask your web developer.', 'error');
+    } else {
+      say('#login-msg', 'Google sign-in did not work. Please try again.', 'error');
+    }
+  } finally {
+    btn.disabled = false;
   }
 });
 
@@ -582,9 +614,10 @@ $('#v-refresh').addEventListener('click', loadVisitors);
 
 // ------------------------------------------------------------------ subscribers
 let subscribers = [];
-const picked = new Set(); // ids of people ticked for a hand-picked email (confirmed subscribers only)
+const picked = new Set(); // ids of people ticked on the list (any status)
 
-const pickedPeople = () => subscribers.filter((s) => s.status === 'confirmed' && picked.has(s.id));
+const pickedAll = () => subscribers.filter((s) => picked.has(s.id)); // for tagging and order messages
+const pickedPeople = () => pickedAll().filter((s) => s.status === 'confirmed'); // for newsletters: subscribers only
 const plural = (n, one, many) => (n === 1 ? one : many);
 
 function startSubscribers() {
@@ -592,8 +625,8 @@ function startSubscribers() {
   const q = query(collection(db, 'subscribers'), orderBy('createdAt', 'desc'));
   stopSubscribers = onSnapshot(q, (snap) => {
     subscribers = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-    // forget ticks for anyone deleted, unsubscribed or not confirmed any more
-    for (const id of [...picked]) if (!subscribers.some((s) => s.id === id && s.status === 'confirmed')) picked.delete(id);
+    // forget ticks for anyone who has been deleted
+    for (const id of [...picked]) if (!subscribers.some((s) => s.id === id)) picked.delete(id);
     renderSubscribers();
   }, () => say('#sub-msg', 'Could not load subscribers.', 'error'));
 }
@@ -625,6 +658,10 @@ function refreshTagLists() {
   );
   sel.value = keep;
   $('#tag-options').replaceChildren(...tags.map((t) => h('option', { value: t })));
+  const ot = $('#order-tag');
+  const keepOrder = tags.includes(ot.value) ? ot.value : '';
+  ot.replaceChildren(h('option', { value: '' }, 'Choose a tag'), ...tags.map((t) => h('option', { value: t }, t)));
+  ot.value = keepOrder;
 }
 
 // Add or remove one tag on a list of people, 20 at a time (the Worker checks the admin sign-in each time).
@@ -654,8 +691,7 @@ function renderSubscribers() {
         h('input', {
           type: 'checkbox',
           'aria-label': 'Tick ' + s.email,
-          title: s.status === 'confirmed' ? '' : 'Only confirmed subscribers can be emailed',
-          disabled: s.status !== 'confirmed',
+          title: s.status === 'confirmed' ? '' : 'Can get order messages, but not newsletters',
           checked: picked.has(s.id),
           onchange: (e) => {
             if (e.target.checked) picked.add(s.id); else picked.delete(s.id);
@@ -689,12 +725,13 @@ function renderSubscribers() {
 
 // The "tick people" bar on the Subscribers tab, and the matching notice and button on the Send tab.
 function updatePick() {
-  const people = pickedPeople();
-  const n = people.length;
+  const n = pickedAll().length;
+  const subs = pickedPeople().length;
   $('#pick-count').textContent = n
-    ? n + ' ' + plural(n, 'person', 'people') + ' ticked.'
-    : 'Tick people below to send them their own email.';
-  $('#pick-email').disabled = n === 0;
+    ? n + ' ' + plural(n, 'person', 'people') + ' ticked' + (subs < n ? ' (' + subs + ' can get newsletters)' : '') + '.'
+    : 'Tick people below to email them or tag them.';
+  $('#pick-email').disabled = subs === 0;
+  $('#pick-order').disabled = n === 0;
   $('#pick-clear').disabled = n === 0;
   $('#tag-add').disabled = n === 0;
   $('#tag-remove').disabled = n === 0;
@@ -712,8 +749,10 @@ function updateSendUi() {
   $('#send-audience').hidden = order || n === 0;
   if (!order && n) {
     const names = people.slice(0, 5).map((p) => p.email).join(', ');
+    const left = pickedAll().length - n;
     $('#send-audience-text').textContent =
-      'This email will go to ' + n + ' ticked ' + plural(n, 'person', 'people') + ' only: ' + names + (n > 5 ? ' and ' + (n - 5) + ' more.' : '.');
+      'This email will go to ' + n + ' ticked ' + plural(n, 'person', 'people') + ' only: ' + names + (n > 5 ? ' and ' + (n - 5) + ' more.' : '.') +
+      (left ? ' ' + left + ' ticked ' + plural(left, 'person is', 'people are') + ' not subscribed, so left out. Use an order message for them.' : '');
   }
   const addrs = orderAddresses();
   $('#order-count').textContent = addrs.length
@@ -732,7 +771,7 @@ $('#tag-add').addEventListener('click', () => tagTicked('add'));
 $('#tag-remove').addEventListener('click', () => tagTicked('remove'));
 
 async function tagTicked(op) {
-  const people = pickedPeople();
+  const people = pickedAll();
   const name = $('#tag-name').value.trim();
   if (!people.length) return say('#sub-msg', 'Tick some people first.', 'error');
   if (!name) return say('#sub-msg', 'Type a tag name first, for example customer.', 'error');
@@ -755,8 +794,8 @@ async function tagTicked(op) {
 }
 
 $('#pick-shown').addEventListener('click', () => {
-  const shown = visibleSubscribers().filter((s) => s.status === 'confirmed');
-  if (!shown.length) return say('#sub-msg', 'No confirmed subscribers are showing. Change "Show" to Confirmed first.', 'error');
+  const shown = visibleSubscribers();
+  if (!shown.length) return say('#sub-msg', 'Nobody is showing. Change the filters first.', 'error');
   for (const s of shown) picked.add(s.id);
   say('#sub-msg', '');
   renderSubscribers();
@@ -764,8 +803,41 @@ $('#pick-shown').addEventListener('click', () => {
 $('#pick-clear').addEventListener('click', () => { picked.clear(); renderSubscribers(); });
 $('#pick-email').addEventListener('click', () => {
   if (!pickedPeople().length) return;
+  $('#send-kind').value = 'newsletter';
+  updateSendUi();
   document.querySelector('.tab[data-tab="send"]').click();
   $('#send-subject').focus();
+});
+
+// Order messages can go to anyone ticked, whatever their status. The recipients end up in the address box so
+// they can be read and edited before sending.
+function addOrderAddresses(list) {
+  const merged = [...new Set([...orderAddresses(), ...list.map((x) => String(x).toLowerCase())])];
+  $('#order-to').value = merged.join('\n');
+  updateSendUi();
+  return merged.length;
+}
+$('#pick-order').addEventListener('click', () => {
+  const people = pickedAll();
+  if (!people.length) return;
+  $('#send-kind').value = 'order';
+  addOrderAddresses(people.map((p) => p.email));
+  document.querySelector('.tab[data-tab="send"]').click();
+  $('#send-subject').focus();
+});
+$('#order-add-ticked').addEventListener('click', () => {
+  const people = pickedAll();
+  if (!people.length) return say('#send-msg', 'Nobody is ticked. Tick people on the Subscribers tab first.', 'error');
+  const n = addOrderAddresses(people.map((p) => p.email));
+  say('#send-msg', 'Added ' + people.length + ' ticked ' + plural(people.length, 'person', 'people') + '. ' + n + ' address' + (n === 1 ? '' : 'es') + ' in the box now.', 'ok');
+});
+$('#order-add-tag').addEventListener('click', () => {
+  const tag = $('#order-tag').value;
+  if (!tag) return say('#send-msg', 'Choose a tag first.', 'error');
+  const people = subscribers.filter((s) => tagsOf(s).includes(tag));
+  if (!people.length) return say('#send-msg', 'Nobody has that tag.', 'error');
+  const n = addOrderAddresses(people.map((p) => p.email));
+  say('#send-msg', 'Added ' + people.length + ' with the tag "' + tag + '". ' + n + ' address' + (n === 1 ? '' : 'es') + ' in the box now.', 'ok');
 });
 $('#send-audience-clear').addEventListener('click', () => { picked.clear(); renderSubscribers(); });
 
@@ -893,7 +965,7 @@ $('#send-all').addEventListener('click', async () => {
   const chosen = order ? [] : pickedPeople();
   const count = order ? addrs.length : chosen.length || subscribers.filter((s) => s.status === 'confirmed').length;
   if (order && !count) return say('#send-msg', 'Add at least one email address for the order message.', 'error');
-  if (order && count > 25) return say('#send-msg', 'An order message can go to 25 people at most. Remove some addresses.', 'error');
+  if (order && count > 250) return say('#send-msg', 'An order message can go to 250 people at most. Send the rest in a second message.', 'error');
   if (!count) return say('#send-msg', 'There are no confirmed subscribers to send to yet.', 'error');
   const who = order
     ? count + ' ' + plural(count, 'customer', 'customers') + ', whether or not they are subscribed.\n\nThis is for messages about their own order only, not offers or news'
@@ -972,6 +1044,8 @@ $('#import-go').addEventListener('click', async () => {
   const keep = tag ? '\n\nAnyone already on the list keeps exactly the status they have and just gets the tag "' + tag.toLowerCase() + '".' : '';
   const how = mode === 'tag_only'
     ? 'Only people already on your list will be tagged "' + tag.toLowerCase() + '". Their status stays exactly as it is. Nobody new is added and nobody is emailed.'
+    : mode === 'customer'
+    ? 'New people are added as customers: you can send them order messages, but never newsletters, and nobody is emailed by this import.' + keep
     : (mode === 'pending'
       ? 'Each new person will get one email asking them to confirm. Only people who click it will receive newsletters.'
       : 'New people will receive newsletters straight away, without confirming.') + keep;

@@ -1159,3 +1159,90 @@ table.subs {
     display: none;
   }
 }
+
+/* ---------- Google sign-in button ---------- */
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: 3rem;
+  margin-top: 1rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: #1f1f1f;
+  font-weight: 700;
+  cursor: pointer;
+}
+.google-btn::before {
+  content: 'G';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: inset 0 0 0 2px #4285f4;
+  color: #4285f4;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+.google-btn:hover {
+  background: #f6f6f6;
+}
+.google-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.or-line {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 1.1rem 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-align: center;
+}
+.or-line::before,
+.or-line::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+/* customers (not subscribed) and the order-message recipient picker */
+.badge.customer {
+  background: #dbe8f8;
+  color: #1f4f8a;
+}
+.order-pick {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+.order-pick label.inline {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.order-pick button {
+  width: 100%;
+}
+@media (min-width: 700px) {
+  .order-pick {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .order-pick select {
+    width: 14rem;
+  }
+  .order-pick button {
+    width: auto;
+  }
+}

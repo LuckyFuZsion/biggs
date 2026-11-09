@@ -36,6 +36,8 @@
       <section id="view-login" class="panel narrow" hidden>
         <h1>Welcome back</h1>
         <p class="muted">Sign in to edit the page and see your subscribers.</p>
+        <button id="google-signin" class="google-btn" type="button">Sign in with Google</button>
+        <p class="or-line"><span>or use your email and password</span></p>
         <form id="login-form" autocomplete="on">
           <label for="login-email">Email</label>
           <input id="login-email" type="email" autocomplete="username" required />
@@ -174,6 +176,7 @@
               <option value="confirmed">Confirmed</option>
               <option value="pending">Waiting to confirm</option>
               <option value="unsubscribed">Unsubscribed</option>
+              <option value="customer">Customers (not subscribed)</option>
               <option value="all">Everyone</option>
             </select>
             <input id="sub-search" type="search" placeholder="Search emails" maxlength="100" />
@@ -206,7 +209,8 @@
             <div class="pick-buttons">
               <button id="pick-shown" class="ghost" type="button">Tick everyone shown</button>
               <button id="pick-clear" class="ghost" type="button">Clear ticks</button>
-              <button id="pick-email" class="primary" type="button" disabled>Write an email to ticked people</button>
+              <button id="pick-email" class="primary" type="button" disabled>Write a newsletter to ticked people</button>
+              <button id="pick-order" class="primary" type="button" disabled>Order message to ticked people</button>
             </div>
             <div class="tag-row">
               <label class="inline" for="tag-name">Tag ticked people</label>
@@ -231,6 +235,7 @@
             <select id="import-mode">
               <option value="pending">Ask them to confirm first (recommended)</option>
               <option value="confirmed">Add as already confirmed</option>
+              <option value="customer">Add as customers (order messages only, no newsletters)</option>
               <option value="tag_only">Only tag people already on the list (do not add anyone new)</option>
             </select>
             <label for="import-tag">Tag everyone in this file (optional)</label>
@@ -276,7 +281,14 @@
               own order: confirmations, delays, swaps and tracking. Never for offers or news. It has no unsubscribe
               link.
             </p>
-            <label for="order-to">Email addresses (paste one or more, up to 25)</label>
+            <div class="order-pick">
+              <label class="inline" for="order-tag">Add everyone with a tag</label>
+              <select id="order-tag"><option value="">Choose a tag</option></select>
+              <button id="order-add-tag" class="ghost" type="button">Add them</button>
+              <button id="order-add-ticked" class="ghost" type="button">Add ticked people</button>
+            </div>
+            <p class="muted small">Or tick people on the Subscribers tab, or paste addresses below. Anyone can be added, subscribed or not.</p>
+            <label for="order-to">Email addresses (up to 250, one per line or separated by commas)</label>
             <textarea id="order-to" rows="3" placeholder="customer@example.com"></textarea>
             <p id="order-count" class="muted small"></p>
           </div>
