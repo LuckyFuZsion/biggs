@@ -1,20 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import { faqCategories, siteConfig } from '@/lib/data';
+import { faqCategories } from '@/lib/data';
 import FaqAccordion from '@/components/FaqAccordion';
 import Reveal from '@/components/Reveal';
+import ContactForm from '@/components/ContactForm';
 
 export default function FaqPage() {
-  const [form, setForm] = useState({ name: '', email: '', message: '' });
-  const [sent, setSent] = useState(false);
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    // Mock submission - wire up to a real contact endpoint later.
-    setSent(true);
-  }
-
   return (
     <div className="bg-biggs-cream">
       <div className="mx-auto max-w-3xl px-6 py-14">
@@ -36,44 +27,7 @@ export default function FaqPage() {
           >
             <h2 className="font-display text-2xl font-bold text-biggs-cream">Get In Touch</h2>
 
-            {sent ? (
-              <p className="mt-6 font-semibold text-biggs-yellow">
-                Thanks for reaching out - we’ll be in touch soon!
-              </p>
-            ) : (
-              <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-                <input
-                  type="text"
-                  required
-                  placeholder="Name"
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full rounded-xl border border-transparent bg-white px-4 py-3 text-biggs-green placeholder:text-biggs-green/50 focus:outline-none focus:ring-2 focus:ring-biggs-yellow"
-                />
-                <input
-                  type="email"
-                  required
-                  placeholder="Email"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="w-full rounded-xl border border-transparent bg-white px-4 py-3 text-biggs-green placeholder:text-biggs-green/50 focus:outline-none focus:ring-2 focus:ring-biggs-yellow"
-                />
-                <textarea
-                  required
-                  rows={4}
-                  placeholder="How can we help?"
-                  value={form.message}
-                  onChange={(e) => setForm({ ...form, message: e.target.value })}
-                  className="w-full rounded-xl border border-transparent bg-white px-4 py-3 text-biggs-green placeholder:text-biggs-green/50 focus:outline-none focus:ring-2 focus:ring-biggs-yellow"
-                />
-                <button
-                  type="submit"
-                  className="btn-pop rounded-full bg-biggs-yellow px-8 py-3 font-semibold text-biggs-green"
-                >
-                  Send Message
-                </button>
-              </form>
-            )}
+            <ContactForm />
           </div>
         </Reveal>
       </div>
